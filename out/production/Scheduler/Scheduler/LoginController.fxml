@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Scheduler.LoginController">
+   <children>
+      <Label fx:id="loginTitle" layoutX="40.0" layoutY="35.0" text="Login to Scheduler">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Label>
+      <Label fx:id="usernameLabel" layoutX="39.0" layoutY="119.0" text="Username" />
+      <Label fx:id="passwordLabel" layoutX="39.0" layoutY="175.0" text="Password" />
+      <TextField layoutX="39.0" layoutY="136.0" />
+      <TextField layoutX="39.0" layoutY="192.0" />
+      <Label fx:id="locationLabel" layoutX="14.0" layoutY="273.0" text="Location: " />
+   </children>
+</AnchorPane>
