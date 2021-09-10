@@ -82,9 +82,9 @@ public class LoginController implements Initializable {
         }
         */
         Connection conn = DriverManager.getConnection(
-                "jdbc:postgresql://localhost:5432/ocp-course",
-                "username",
-                "Password20182");
+                "wgudb.ucertify.com",
+                username,
+                password);
         System.out.println(conn);
     }
 

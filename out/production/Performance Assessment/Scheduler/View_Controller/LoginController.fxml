@@ -21,7 +21,7 @@
             </Label>
             <Label fx:id="passwordLabel" alignment="CENTER_RIGHT" layoutX="16.0" layoutY="190.0" prefHeight="44.0" prefWidth="103.0" text="Password:" textAlignment="RIGHT" wrapText="true">
                <padding>
-                  <Insets bottom="5.0" left="1.0" right="5.0" top="5.0" />
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding></Label>
             <TextField fx:id="usernameTextField" layoutX="123.0" layoutY="146.0" onAction="#authorize" />
             <Label fx:id="usernameLabel" alignment="CENTER_RIGHT" layoutX="16.0" layoutY="138.0" prefHeight="44.0" prefWidth="103.0" text="Username:" wrapText="true">
