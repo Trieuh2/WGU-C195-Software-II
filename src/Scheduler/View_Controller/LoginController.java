@@ -9,6 +9,7 @@ import java.net.URL;
 import java.sql.*;
 import java.time.ZoneId;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
@@ -56,7 +57,7 @@ public class LoginController implements Initializable {
     }
 
     // Tests the inputted credentials to see if they are the correct credentials into the database
-    public void authorize() throws SQLException {
+    public void authorize() throws SQLException, ClassNotFoundException {
         // PRODUCTION CODE
         Locale locale = Locale.getDefault();
 
@@ -81,12 +82,20 @@ public class LoginController implements Initializable {
             System.out.println("Login is successful");
         }
         */
-        Connection conn = DriverManager.getConnection(
-                "wgudb.ucertify.com",
-                username,
-                password);
-        System.out.println(conn);
+        Connection conn = null;
+
+
+        try {
+            conn = DriverManager.getConnection(
+                    "jdbc:mysql://wgudb.ucertify.com:3306",
+                    username,
+                    password);
+
+            if(conn != null) {
+                System.out.println("Successfully connected to MySQL database");
+            }
+        } catch (SQLException ex) {
+            System.out.println("An error occurred while connecting to MySQL database");
+        }
     }
-
-
 }
