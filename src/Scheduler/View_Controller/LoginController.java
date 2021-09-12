@@ -15,8 +15,7 @@ import java.util.ResourceBundle;
 public class LoginController implements Initializable {
     // Generated and taken from WGU database generation
     // TODO: Remove creds on final commit
-    private final String serverName = "wgudb.ucertify.com";
-    private final String port = "3306";
+    private final String connectionURL = "jdbc:mysql://wgudb.ucertify.com:3306";
     private final String databaseName = "WJ07jtq";
     private final String username = "U07jtq";
     private final String password = "53689048171";
@@ -59,7 +58,6 @@ public class LoginController implements Initializable {
 
     // Tests the inputted credentials to see if they are the correct credentials into the database
     public void authorize() {
-        // PRODUCTION CODE
         Locale locale = Locale.getDefault();
 
         // TODO: TEST FRENCH AND REMOVE ON FINAL COMMIT
@@ -76,7 +74,7 @@ public class LoginController implements Initializable {
         else{
             try {
                 Connection conn = DriverManager.getConnection(
-                        "jdbc:mysql://wgudb.ucertify.com:3306",
+                        connectionURL,
                         usernameTextField.getText(),
                         passwordTextField.getText());
 
