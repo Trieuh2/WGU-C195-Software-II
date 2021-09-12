@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
     // Generated and taken from WGU database generation
+    // TODO: Remove creds on final commit
     private final String serverName = "wgudb.ucertify.com";
     private final String port = "3306";
     private final String databaseName = "WJ07jtq";
@@ -57,7 +58,7 @@ public class LoginController implements Initializable {
     }
 
     // Tests the inputted credentials to see if they are the correct credentials into the database
-    public void authorize() throws SQLException, ClassNotFoundException {
+    public void authorize() {
         // PRODUCTION CODE
         Locale locale = Locale.getDefault();
 
@@ -67,35 +68,25 @@ public class LoginController implements Initializable {
 
         ResourceBundle languageBundle = ResourceBundle.getBundle("Scheduler/View_Controller/Login", locale);
 
-        /*
         // Check if one of the username or password fields are empty
         if(usernameTextField.getText().isEmpty() || passwordTextField.getText().isEmpty()) {
             exceptionLabel.setText(languageBundle.getString("emptyCredentialsException"));
         }
-        // Check if the credentials are invalid
-        else if(!usernameTextField.getText().equals(username) || !passwordTextField.getText().equals(password)) {
-            exceptionLabel.setText(languageBundle.getString("invalidCredentialsException"));
-        }
-        // Login successfully
-        // TODO: Transition to next Controller
+        // Authorize
         else{
-            System.out.println("Login is successful");
-        }
-        */
-        Connection conn = null;
+            try {
+                Connection conn = DriverManager.getConnection(
+                        "jdbc:mysql://wgudb.ucertify.com:3306",
+                        usernameTextField.getText(),
+                        passwordTextField.getText());
 
-
-        try {
-            conn = DriverManager.getConnection(
-                    "jdbc:mysql://wgudb.ucertify.com:3306",
-                    username,
-                    password);
-
-            if(conn != null) {
-                System.out.println("Successfully connected to MySQL database");
+                // TODO: Transition to next controller
+                if(conn != null) {
+                    System.out.println("Connection to MySQL Database was successful.");
+                }
+            } catch (SQLException ex) {
+                exceptionLabel.setText(languageBundle.getString("invalidCredentialsException"));
             }
-        } catch (SQLException ex) {
-            System.out.println("An error occurred while connecting to MySQL database");
         }
     }
 }
