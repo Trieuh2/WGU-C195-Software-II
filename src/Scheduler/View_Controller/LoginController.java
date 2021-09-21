@@ -1,5 +1,6 @@
 package Scheduler.View_Controller;
 
+import helper.JDBC;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -13,13 +14,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
-    // Generated and taken from WGU database generation
-    // TODO: Remove creds on final commit
-    private final String connectionURL = "jdbc:mysql://wgudb.ucertify.com:3306";
-    private final String databaseName = "WJ07jtq";
-    private final String username = "U07jtq";
-    private final String password = "53689048171";
-
     // Label FXML variables
     @FXML private Label loginTitleLabel;
     @FXML private Label usernameLabel;
@@ -71,20 +65,8 @@ public class LoginController implements Initializable {
             exceptionLabel.setText(languageBundle.getString("emptyCredentialsException"));
         }
         // Authorize
-        else{
-            try {
-                Connection conn = DriverManager.getConnection(
-                        connectionURL,
-                        usernameTextField.getText(),
-                        passwordTextField.getText());
-
-                // TODO: Transition to next controller
-                if(conn != null) {
-                    System.out.println("Connection to MySQL Database was successful.");
-                }
-            } catch (SQLException ex) {
-                exceptionLabel.setText(languageBundle.getString("invalidCredentialsException"));
-            }
+        else {
+            JDBC.openConnection();
         }
     }
 }
