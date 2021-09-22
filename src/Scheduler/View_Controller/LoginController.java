@@ -2,18 +2,26 @@ package Scheduler.View_Controller;
 
 import helper.JDBC;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 import java.net.URL;
-import java.sql.*;
 import java.time.ZoneId;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
+    // Primary Anchor Pane
+    @FXML private AnchorPane loginPrimaryAnchorPane;
+
     // Label FXML variables
     @FXML private Label loginTitleLabel;
     @FXML private Label usernameLabel;
@@ -51,7 +59,7 @@ public class LoginController implements Initializable {
     }
 
     // Tests the inputted credentials to see if they are the correct credentials into the database
-    public void authorize() {
+    public void authorize() throws IOException {
         Locale locale = Locale.getDefault();
 
         // TODO: TEST FRENCH AND REMOVE ON FINAL COMMIT
@@ -66,7 +74,37 @@ public class LoginController implements Initializable {
         }
         // Authorize
         else {
-            JDBC.openConnection();
+            JDBC.openConnection(usernameTextField.getText(), passwordTextField.getText());
+
+            // Check if connection is valid
+            if(JDBC.connection != null) {
+                switchToMainController();
+            }
+            else {
+                exceptionLabel.setText(languageBundle.getString("invalidCredentialsException"));
+            }
         }
+    }
+
+    // Closes the login screen and switches to MainController where the appointment calendar is displayed
+    private void switchToMainController() throws IOException {
+        // Load the FXML file.
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
+        MainController controller = new MainController();
+        loader.setController(controller);
+        Parent root = loader.load();
+
+        // Close the current window and build the MainController scene to display the appointment calendar
+        closeCurrentWindow();
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    // Closes the current window
+    private void closeCurrentWindow() {
+        Stage currentStage = (Stage)loginPrimaryAnchorPane.getScene().getWindow();
+        currentStage.close();
     }
 }
