@@ -3,12 +3,15 @@ import helper.JDBC;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,20 +20,22 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class AddCustomerController implements Initializable {
-
-    // FXML Labels
-    @FXML Label customerIDLabel;
+    @FXML AnchorPane addCustAnchorPane;
 
     // FXML TextFields
-    @FXML TextField customerIDTextField;
+    @FXML TextField custIDTextField;
+    @FXML TextField custNameTextField;
+    @FXML TextField custAddressTextField;
+    @FXML TextField custPostalCodeTextField;
+    @FXML TextField custPhoneNumberTextField;
 
     // FXML Menus
     @FXML MenuButton countryMenu;
-    @FXML MenuButton stateRegionMenu;
+    @FXML MenuButton divisionMenu;
 
     // Required information for adding a customer
     private int customerID;
-    private String customerName;
+    private String name;
     private String address;
     private String postalCode;
     private String phoneNumber;
@@ -41,11 +46,18 @@ public class AddCustomerController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        name = "";
+        address = "";
+        postalCode = "";
+        phoneNumber = "";
+        selectedDivisionID = "";
+
         prepopulateCustomerID();
         prepopulateCountryOptions();
+        divisionMenu.setDisable(true);
     }
 
-    // Gets the max customerID and adds a new
+    // Pre-populates an untaken customer ID
     private void prepopulateCustomerID() {
         try {
             int newCustomerID = -1;
@@ -60,10 +72,10 @@ public class AddCustomerController implements Initializable {
             }
 
             newCustomerID++;
-            customerIDTextField.setText("" + newCustomerID);
+            custIDTextField.setText("" + newCustomerID);
         }
         catch (SQLException e) {
-            System.out.println("Error attempting to fetch customer ID from the database");
+            System.out.println("Error retrieving Customer_IDs from the database");
         }
     }
 
@@ -89,7 +101,13 @@ public class AddCustomerController implements Initializable {
                         selectedCountry = menuItem.getText();
                         countryMenu.setText(menuItem.getText());
 
-                        // Get the country ID that will be used for pre-populating the region selection
+                        // Reset the division selection when a country is selected
+                        divisionMenu.setDisable(false);
+                        divisionMenu.setText("Select");
+                        divisionMenu.getItems().clear();
+                        selectedDivisionID = null;
+
+                        // Get the country ID that will be used for pre-populating the division selection
                         try {
                             // DB Query
                             String query = "SELECT Country_ID FROM countries WHERE Country = '" + selectedCountry + "'";
@@ -104,21 +122,19 @@ public class AddCustomerController implements Initializable {
                             System.out.println("Error fetching countries from the database.");
                         }
 
-                        prepopulateFirstLevelDivisions(selectedCountryID);
+                        prepopulateDivisionOptions(selectedCountryID);
                     }
                 });
                 countryMenu.getItems().add(menuItem);
             }
         }
         catch (SQLException e){
-            System.out.println("Error attempting to fetch countries from the database.");
+            System.out.println("Error retrieving countries from the database.");
         }
     }
 
     // Pre-populates State and Division options based off the country selection
-    private void prepopulateFirstLevelDivisions(int id) {
-        stateRegionMenu.getItems().clear();
-
+    private void prepopulateDivisionOptions(int id) {
         // Query all the first level divisions from the DB
         try {
             // DB Query
@@ -126,11 +142,10 @@ public class AddCustomerController implements Initializable {
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
-            // Add the region options to the menu
+            // Add the division options to the menu
             while(rs.next()) {
                 MenuItem menuItem = new MenuItem(rs.getString(1));
 
-                // TODO: initialize the selectedDivisionID
                 // Set the onAction event
                 menuItem.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
@@ -138,7 +153,7 @@ public class AddCustomerController implements Initializable {
                         try {
                             // Update GUI and set values
                             String divisionName = menuItem.getText();
-                            stateRegionMenu.setText(divisionName);
+                            divisionMenu.setText(divisionName);
 
                             // DB Query
                             String query = "SELECT Division_ID FROM first_level_divisions WHERE Division = '" + divisionName + "'";
@@ -155,8 +170,8 @@ public class AddCustomerController implements Initializable {
                     }
                 });
 
-                // Add the menuItem to the region menu
-                stateRegionMenu.getItems().add(menuItem);
+                // Add the menuItem to the division menu
+                divisionMenu.getItems().add(menuItem);
             }
         }
         catch(SQLException e) {
@@ -164,8 +179,52 @@ public class AddCustomerController implements Initializable {
         }
     }
 
-    // TODO:
-    private void addCustomer(){
+    // TODO: Add SQL code to add new customer to database
+    @FXML
+    private void addCustomer() {
+        name = custNameTextField.getText();
+        address = custAddressTextField.getText();
+        postalCode = custPostalCodeTextField.getText();
+        phoneNumber = custPhoneNumberTextField.getText();
 
+        if(!name.isEmpty() && !address.isEmpty() && (selectedCountry != null) && (selectedDivisionID != null) && !postalCode.isEmpty() && !phoneNumber.isEmpty()) {
+            // TODO
+            // Add customer to DB
+            returnToMainController();
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Error");
+            alert.setContentText("All fields must have a value.");
+            alert.show();
+        }
+    }
+
+    // Closes current scene and switches back to the main controller
+    @FXML
+    private void returnToMainController() {
+        try {
+            // Load the FXML file.
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
+            MainController controller = new MainController();
+            loader.setController(controller);
+            Parent root = loader.load();
+
+            // Close the current window and build the MainController scene to display the appointment calendar
+            closeCurrentWindow();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.show();
+        }
+        catch (IOException e) {
+            System.out.println("Error switching back to Main Controller.");
+        }
+    }
+
+    // Closes the current window
+    private void closeCurrentWindow() {
+        Stage currentStage = (Stage)addCustAnchorPane.getScene().getWindow();
+        currentStage.close();
     }
 }

@@ -61,6 +61,13 @@ public class LoginController implements Initializable {
         // TODO: Remove on final commit
         usernameTextField.setText("sqlUser");
         passwordTextField.setText("Passw0rd!");
+        /*
+        try{
+            authorize();
+        }
+        catch (IOException e) {
+
+        }*/
     }
 
     // Tests the inputted credentials to see if they are the correct credentials into the database
