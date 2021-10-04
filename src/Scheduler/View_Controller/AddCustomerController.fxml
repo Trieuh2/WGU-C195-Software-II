@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="318.0" prefWidth="521.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <GridPane layoutX="14.0" layoutY="14.0" prefHeight="267.0" prefWidth="448.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="285.0" minWidth="10.0" prefWidth="121.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="455.0" minWidth="10.0" prefWidth="155.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="455.0" minWidth="10.0" prefWidth="91.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="455.0" minWidth="10.0" prefWidth="103.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Customer ID" />
+            <Label text="Customer Name" GridPane.rowIndex="1" />
+            <Label text="Address" GridPane.rowIndex="2" />
+            <Label text="Postal Code" GridPane.columnIndex="2" GridPane.rowIndex="5">
+               <padding>
+                  <Insets left="10.0" />
+               </padding></Label>
+            <Label text="Phone Number" GridPane.rowIndex="7" />
+            <TextField editable="false" GridPane.columnIndex="1" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField promptText="Address Line 1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <TextField promptText="Address Line 2" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField prefHeight="25.0" prefWidth="138.0" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+            <TextField promptText="e.g. (555)-555-5555" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <TextField promptText="City / District" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <TextField promptText="State / Region" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label text="Country" GridPane.rowIndex="6" />
+            <MenuButton mnemonicParsing="false" text="Select a Country..." GridPane.columnIndex="1" GridPane.rowIndex="6">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Action 1" />
+                <MenuItem mnemonicParsing="false" text="Action 2" />
+              </items>
+            </MenuButton>
+         </children>
+      </GridPane>
+   </children>
+</AnchorPane>
