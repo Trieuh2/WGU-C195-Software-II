@@ -11,9 +11,10 @@ public class Main extends Application {
     // The start of the page is the Login page
     @Override
     public void start(Stage primaryStage) throws Exception{
-
         //Load the FXML file
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/LoginController.fxml"));
+        LoginController controller = new LoginController();
+        loader.setController(controller);
         Parent root = loader.load();
 
         // Build the scene and display the window

@@ -1,6 +1,8 @@
 package Scheduler.View_Controller;
 
 import helper.JDBC;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -11,7 +13,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
 import java.time.ZoneId;
@@ -56,6 +57,10 @@ public class LoginController implements Initializable {
         passwordLabel.setText(languageBundle.getString("password"));
         locationLabel.setText(languageBundle.getString("location") + location);
         languageLabel.setText(languageBundle.getString("language") + language);
+
+        // TODO: Remove on final commit
+        usernameTextField.setText("sqlUser");
+        passwordTextField.setText("Passw0rd!");
     }
 
     // Tests the inputted credentials to see if they are the correct credentials into the database
