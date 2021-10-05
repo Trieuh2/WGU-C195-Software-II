@@ -16,8 +16,13 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 public class AddCustomerController implements Initializable {
     @FXML AnchorPane addCustAnchorPane;
@@ -60,7 +65,7 @@ public class AddCustomerController implements Initializable {
     // Pre-populates an untaken customer ID
     private void prepopulateCustomerID() {
         try {
-            int newCustomerID = -1;
+            customerID = 1;
 
             // DB Query
             String query = "SELECT MAX(Customer_ID) FROM customers";
@@ -68,11 +73,11 @@ public class AddCustomerController implements Initializable {
             ResultSet rs = st.executeQuery(query);
 
             while(rs.next()) {
-                newCustomerID= rs.getInt(1);
+                customerID= rs.getInt(1);
             }
 
-            newCustomerID++;
-            custIDTextField.setText("" + newCustomerID);
+            customerID++;
+            custIDTextField.setText("" + customerID);
         }
         catch (SQLException e) {
             System.out.println("Error retrieving Customer_IDs from the database");
@@ -188,9 +193,48 @@ public class AddCustomerController implements Initializable {
         phoneNumber = custPhoneNumberTextField.getText();
 
         if(!name.isEmpty() && !address.isEmpty() && (selectedCountry != null) && (selectedDivisionID != null) && !postalCode.isEmpty() && !phoneNumber.isEmpty()) {
-            // TODO
+            // TODO:
             // Add customer to DB
-            returnToMainController();
+            try {
+                // TODO: Add Create_Date, Created_By, Last_Update, and Last_Updated_By fields
+                String createDate = "";
+                String lastUpdate = "";
+
+                SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss'");
+                utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                // Parse current UTC times
+                try {
+                    createDate = utcFormat.parse(Instant.now().toString()).toString();
+                    lastUpdate = utcFormat.parse(Instant.now().toString()).toString();
+                }
+                catch(ParseException e) {
+                    System.out.println("Error getting current UTC time.");
+                }
+
+                String createdBy = "script";
+                String lastUpdatedBy = "script";
+
+                // DB Query
+                String update = "INSERT INTO customers VALUES (" + customerID
+                                                                + ", '" + name + "', '"
+                                                                + address + "', '"
+                                                                + postalCode + "', '"
+                                                                + phoneNumber + "', '"
+                                                                + createDate + "', '"
+                                                                + createdBy + "', '"
+                                                                + lastUpdate + "', '"
+                                                                + lastUpdatedBy + "', "
+                                                                + selectedDivisionID + ")";
+                Statement st = JDBC.connection.createStatement();
+                st.executeUpdate(update);
+
+                // Return to the Main Controller after saving the new customer to the database
+                returnToMainController();
+            }
+            catch(SQLException e) {
+                System.out.println("Error adding customer to database.");
+            }
         }
         else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
