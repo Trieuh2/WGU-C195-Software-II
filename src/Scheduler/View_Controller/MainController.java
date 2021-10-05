@@ -48,4 +48,21 @@ public class MainController implements Initializable {
         stage.setScene(scene);
         stage.show();
     }
+
+    // Closes the main screen and switches to the controller where the user can view all the customers
+    @FXML
+    private void switchToViewCustomerController() throws IOException {
+        // Load the FXML file.
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/ViewCustomerController.fxml"));
+        ViewCustomerController controller = new ViewCustomerController();
+        loader.setController(controller);
+        Parent root = loader.load();
+
+        // Close the current window and build the MainController scene to display the appointment calendar
+        closeCurrentWindow();
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
+    }
 }
