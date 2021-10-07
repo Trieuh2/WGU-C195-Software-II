@@ -59,6 +59,26 @@ public class Customer {
         return divisionName;
     }
 
+    // Checks if the customer has any appointments associated
+    public boolean hasAppointments() {
+        boolean hasAppointments = false;
+        try {
+            // DB Query
+            String query = "SELECT * FROM appointments WHERE Customer_ID = " + this.ID;
+            Statement st = JDBC.connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while(rs.next()) {
+                hasAppointments = true;
+            }
+        }
+        catch(SQLException e) {
+
+        }
+
+        return hasAppointments;
+    }
+
     private void setDivisionName() {
         try {
             // DB Query

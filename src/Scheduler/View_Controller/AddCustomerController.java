@@ -10,17 +10,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 
@@ -184,7 +181,6 @@ public class AddCustomerController implements Initializable {
         }
     }
 
-    // TODO: Add SQL code to add new customer to database
     @FXML
     private void addCustomer() {
         name = custNameTextField.getText();
@@ -193,27 +189,25 @@ public class AddCustomerController implements Initializable {
         phoneNumber = custPhoneNumberTextField.getText();
 
         if(!name.isEmpty() && !address.isEmpty() && (selectedCountry != null) && (selectedDivisionID != null) && !postalCode.isEmpty() && !phoneNumber.isEmpty()) {
-            // TODO:
             // Add customer to DB
             try {
-                // TODO: Add Create_Date, Created_By, Last_Update, and Last_Updated_By fields
-                String createDate = "";
-                String lastUpdate = "";
-
-                SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss'");
+                SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-                // Parse current UTC times
-                try {
-                    createDate = utcFormat.parse(Instant.now().toString()).toString();
-                    lastUpdate = utcFormat.parse(Instant.now().toString()).toString();
-                }
-                catch(ParseException e) {
-                    System.out.println("Error getting current UTC time.");
-                }
+                String createDate = utcFormat.format(new Date());
+                String lastUpdate = utcFormat.format(new Date());
 
                 String createdBy = "script";
                 String lastUpdatedBy = "script";
+
+                // Retrieves current logged in, used for auditing the user that created and last updated the customer record
+                try {
+                    createdBy = JDBC.connection.getMetaData().getUserName();
+                    lastUpdatedBy = JDBC.connection.getMetaData().getUserName();
+                }
+                catch (SQLException e) {
+                    System.out.println("Error retrieving metadata information to retrieve current username.");
+                }
 
                 // DB Query
                 String update = "INSERT INTO customers VALUES (" + customerID
