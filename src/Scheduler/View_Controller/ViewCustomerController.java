@@ -13,7 +13,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -48,17 +47,19 @@ public class ViewCustomerController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        setButtonOnActions();
         setCellFactoryValues();
         loadTable();
 
-        // Edit button is only visible when a customer is selected within the view
+        // Save button is only visible when a change is made to a customer record
         saveButton.setVisible(false);
+
+        // Delete button is only visible when a customer selection is made
+        deleteButton.setVisible(false);
 
         // Add a listener to the tableView
         customerTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if(newSelection != null) {
-                saveButton.setVisible(true);
+                deleteButton.setVisible(true);
                 selectedCustomer = customerTableView.getSelectionModel().getSelectedItem();
             }
         });
@@ -76,8 +77,10 @@ public class ViewCustomerController implements Initializable {
     // DONE
     // Fetches all the customers from the DB and loads it into the TableView
     private void loadTable() {
-        // Clear the table before loading/reloading customers into the table
+        // Clear the table and selection before loading/reloading customers into the table
         customerTableView.getItems().clear();
+        customerTableView.getSelectionModel().clearSelection();
+        deleteButton.setVisible(false);
 
         // Fetch all the customers
         try {
@@ -104,6 +107,40 @@ public class ViewCustomerController implements Initializable {
         }
     }
 
+    @FXML
+    private void deleteCustomer() {
+        // Only delete the customer if the customer does not have an appointment
+        if(!selectedCustomer.hasAppointments()) {
+            try {
+                // DB Query
+                String update = "DELETE FROM customers WHERE Customer_ID = " + selectedCustomer.getID();
+                Statement st = JDBC.connection.createStatement();
+                st.executeUpdate(update);
+
+                // Re-load the table after deleting the customer from the DB
+                loadTable();
+
+                // Display a custom message to confirm successful deletion
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Customer Deleted");
+                alert.setContentText(selectedCustomer.getName() + " has been deleted successfully.");
+                alert.show();
+            }
+            catch(SQLException e) {
+                System.out.println("Error deleting record from database");
+            }
+        }
+        // Display an error letting the user know that the associated customer has existing appointments
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error Deleting Customer");
+            alert.setContentText(selectedCustomer.getName() + " could not be deleted because the customer has existing appointments.\n\n" +
+                    "Please remove all existing appointments and try again.");
+
+            alert.show();
+        }
+    }
+
     // DONE
     // Closes the current window
     private void closeCurrentWindow() {
@@ -113,6 +150,7 @@ public class ViewCustomerController implements Initializable {
 
     // DONE
     // Closes the screen and switches to MainController where the appointment calendar is displayed
+    @FXML
     private void switchToMainController() throws IOException {
         // Load the FXML file.
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
@@ -126,64 +164,5 @@ public class ViewCustomerController implements Initializable {
         Stage stage = new Stage();
         stage.setScene(scene);
         stage.show();
-    }
-
-    // Sets the behavior of the buttons on this controller
-    private void setButtonOnActions() {
-        // TODO: IMPLEMENT RECORD MODIFICATION
-        saveButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-
-            }
-        });
-
-        deleteButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                // Only delete the customer if the customer does not have an appointment
-                if(!selectedCustomer.hasAppointments()) {
-                    try {
-                        // DB Query
-                        String update = "DELETE FROM customers WHERE Customer_ID = " + selectedCustomer.getID();
-                        Statement st = JDBC.connection.createStatement();
-                        st.executeUpdate(update);
-
-                        // Re-load the table after deleting the customer from the DB
-                        loadTable();
-
-                        // Display a custom message to confirm successful deletion
-                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                        alert.setTitle("Customer Deleted");
-                        alert.setContentText(selectedCustomer.getName() + " has been deleted successfully.");
-                        alert.show();
-                    }
-                    catch(SQLException e) {
-                        System.out.println("Error deleting record from database");
-                    }
-                }
-                // Display an error letting the user know that the associated customer has existing appointments
-                else {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error Deleting Customer");
-                    alert.setContentText(selectedCustomer.getName() + " could not be deleted because the customer has existing appointments.\n\n" +
-                            "Please remove all existing appointments and try again.");
-
-                    alert.show();
-                }
-            }
-        });
-
-        exitButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                try {
-                    switchToMainController();
-                }
-                catch(IOException e) {
-                    System.out.println("Error switching to Main Controller");
-                }
-            }
-        });
     }
 }

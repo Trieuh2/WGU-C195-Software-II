@@ -15,8 +15,8 @@
             <TableColumn fx:id="divisionColumn" prefWidth="174.0" text="State/Region" />
         </columns>
       </TableView>
-      <Button fx:id="exitButton" layoutX="851.0" layoutY="477.0" mnemonicParsing="false" text="Exit" />
+      <Button fx:id="exitButton" layoutX="851.0" layoutY="477.0" mnemonicParsing="false" onAction="#switchToMainController" text="Exit" />
       <Button fx:id="saveButton" layoutX="747.0" layoutY="477.0" mnemonicParsing="false" text="Save" />
-      <Button fx:id="deleteButton" layoutX="792.0" layoutY="477.0" mnemonicParsing="false" text="Delete" />
+      <Button fx:id="deleteButton" layoutX="792.0" layoutY="477.0" mnemonicParsing="false" onAction="#deleteCustomer" text="Delete" />
    </children>
 </AnchorPane>
