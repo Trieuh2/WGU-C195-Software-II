@@ -39,7 +39,7 @@ public class ViewCustomerController implements Initializable {
     @FXML TableColumn divisionColumn;
 
     // Buttons
-    @FXML Button saveButton;
+    @FXML Button editButton;
     @FXML Button deleteButton;
     @FXML Button exitButton;
 
@@ -50,21 +50,22 @@ public class ViewCustomerController implements Initializable {
         setCellFactoryValues();
         loadTable();
 
-        // Save button is only visible when a change is made to a customer record
-        saveButton.setVisible(false);
-
-        // Delete button is only visible when a customer selection is made
+        // Edit and Delete buttons are only visible when a change is made to a customer record
+        editButton.setVisible(false);
         deleteButton.setVisible(false);
 
         // Add a listener to the tableView
         customerTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if(newSelection != null) {
-                deleteButton.setVisible(true);
                 selectedCustomer = customerTableView.getSelectionModel().getSelectedItem();
+                editButton.setVisible(true);
+                deleteButton.setVisible(true);
             }
         });
     }
 
+    // DONE
+    // Sets the column names and accepted property in the column
     private void setCellFactoryValues() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("ID"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -107,6 +108,8 @@ public class ViewCustomerController implements Initializable {
         }
     }
 
+    // DONE
+    // Deletes the selected customer if there are no appointments
     @FXML
     private void deleteCustomer() {
         // Only delete the customer if the customer does not have an appointment
@@ -159,6 +162,24 @@ public class ViewCustomerController implements Initializable {
         Parent root = loader.load();
 
         // Close the current window and build the MainController scene to display the appointment calendar
+        closeCurrentWindow();
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    // DONE
+    // Closes the screen and switches to the UpdateCustomerController screen where the customer's information can be updated
+    @FXML
+    private void switchToUpdateCustomerController() throws IOException {
+        // Load the FXML file.
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/UpdateCustomerController.fxml"));
+        UpdateCustomerController controller = new UpdateCustomerController(selectedCustomer);
+        loader.setController(controller);
+        Parent root = loader.load();
+
+        // Close the current window and build the UpdateCustomerController scene
         closeCurrentWindow();
         Scene scene = new Scene(root);
         Stage stage = new Stage();

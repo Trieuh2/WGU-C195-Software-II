@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="viewCustomerAnchorPane" prefHeight="520.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="viewCustomerAnchorPane" prefHeight="520.0" prefWidth="906.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <TableView fx:id="customerTableView" layoutX="14.0" layoutY="14.0" prefHeight="450.0" prefWidth="875.0">
         <columns>
@@ -16,7 +16,7 @@
         </columns>
       </TableView>
       <Button fx:id="exitButton" layoutX="851.0" layoutY="477.0" mnemonicParsing="false" onAction="#switchToMainController" text="Exit" />
-      <Button fx:id="saveButton" layoutX="747.0" layoutY="477.0" mnemonicParsing="false" text="Save" />
-      <Button fx:id="deleteButton" layoutX="792.0" layoutY="477.0" mnemonicParsing="false" onAction="#deleteCustomer" text="Delete" />
+      <Button fx:id="deleteButton" layoutX="792.0" layoutY="477.0" mnemonicParsing="false" onAction="#deleteCustomer" text="Delete" AnchorPane.rightAnchor="63.0" />
+      <Button fx:id="editButton" layoutX="746.0" layoutY="477.0" mnemonicParsing="false" onAction="#switchToUpdateCustomerController" text="Edit" />
    </children>
 </AnchorPane>
