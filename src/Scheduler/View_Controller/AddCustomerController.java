@@ -35,16 +35,23 @@ public class AddCustomerController implements Initializable {
     @FXML MenuButton countryMenu;
     @FXML MenuButton divisionMenu;
 
-    // Required information for adding a customer
+    // Required fields to add a customer in the DB
     private int customerID;
     private String name;
     private String address;
     private String postalCode;
     private String phoneNumber;
+    private String createDate;
+    private String createdBy;
+    private String lastUpdate;
+    private String lastUpdatedBy;
     private String selectedDivisionID;
 
     private String selectedCountry;
     private int selectedCountryID;
+
+    // Variable for tracking the user logged in
+    private int loggedUserID;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -57,6 +64,10 @@ public class AddCustomerController implements Initializable {
         prepopulateCustomerID();
         prepopulateCountryOptions();
         divisionMenu.setDisable(true);
+    }
+
+    public AddCustomerController(int loggedUserID) {
+        this.loggedUserID = loggedUserID;
     }
 
     // Pre-populates an untaken customer ID
@@ -123,10 +134,11 @@ public class AddCustomerController implements Initializable {
                         catch(SQLException e) {
                             System.out.println("Error fetching countries from the database.");
                         }
-
+                        // Populate the division options within the drop-down menu depending on the country selection
                         prepopulateDivisionOptions(selectedCountryID);
                     }
                 });
+                // Add the discovered country to the menu
                 countryMenu.getItems().add(menuItem);
             }
         }
@@ -194,22 +206,25 @@ public class AddCustomerController implements Initializable {
                 SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-                String createDate = utcFormat.format(new Date());
-                String lastUpdate = utcFormat.format(new Date());
+                createDate = utcFormat.format(new Date());
+                lastUpdate = utcFormat.format(new Date());
 
-                String createdBy = "script";
-                String lastUpdatedBy = "script";
-
-                // Retrieves current logged in, used for auditing the user that created and last updated the customer record
+                // Retrieves current logged in, used for auditing the user that added the customer
                 try {
-                    createdBy = JDBC.connection.getMetaData().getUserName();
-                    lastUpdatedBy = JDBC.connection.getMetaData().getUserName();
+                    String query = "SELECT User_Name FROM users WHERE User_ID = " + loggedUserID;
+                    Statement st = JDBC.connection.createStatement();
+                    ResultSet rs = st.executeQuery(query);
+
+                    while(rs.next()) {
+                        createdBy = rs.getString(1);
+                        lastUpdatedBy = rs.getString(1);
+                    }
                 }
                 catch (SQLException e) {
-                    System.out.println("Error retrieving metadata information to retrieve current username.");
+                    System.out.println("Error retrieving information to retrieve the logged in user's information.");
                 }
 
-                // DB Query
+                // DB Query for adding user
                 String update = "INSERT INTO customers VALUES (" + customerID
                                                                 + ", '" + name + "', '"
                                                                 + address + "', '"
@@ -244,7 +259,7 @@ public class AddCustomerController implements Initializable {
         try {
             // Load the FXML file.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
-            MainController controller = new MainController();
+            MainController controller = new MainController(loggedUserID);
             loader.setController(controller);
             Parent root = loader.load();
 

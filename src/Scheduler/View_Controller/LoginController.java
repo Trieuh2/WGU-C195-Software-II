@@ -15,6 +15,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -35,8 +38,13 @@ public class LoginController implements Initializable {
     @FXML private TextField usernameTextField;
     @FXML private PasswordField passwordTextField;
 
+    // Variable for tracking the user logged in
+    private int loggedUserID;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        JDBC.openConnection();
+
         ZoneId zoneId = ZoneId.systemDefault();
         Locale locale = Locale.getDefault();
 
@@ -59,15 +67,8 @@ public class LoginController implements Initializable {
         languageLabel.setText(languageBundle.getString("language") + language);
 
         // TODO: Remove on final commit
-        usernameTextField.setText("sqlUser");
-        passwordTextField.setText("Passw0rd!");
-        /*
-        try{
-            authorize();
-        }
-        catch (IOException e) {
-
-        }*/
+        usernameTextField.setText("test");
+        passwordTextField.setText("test");
     }
 
     // Tests the inputted credentials to see if they are the correct credentials into the database
@@ -84,16 +85,26 @@ public class LoginController implements Initializable {
         if(usernameTextField.getText().isEmpty() || passwordTextField.getText().isEmpty()) {
             exceptionLabel.setText(languageBundle.getString("emptyCredentialsException"));
         }
-        // Authorize
+        // Attempt authorization
         else {
-            JDBC.openConnection(usernameTextField.getText(), passwordTextField.getText());
+            try{
+                // Check if the inputted credentials belong to a user within the database
+                String query = "SELECT * FROM users WHERE User_Name = '" + usernameTextField.getText() +
+                                                    "' AND Password = '" + passwordTextField.getText() + "'";
+                Statement st = JDBC.connection.createStatement();
+                ResultSet rs = st.executeQuery(query);
 
-            // Check if connection is valid
-            if(JDBC.connection != null) {
-                switchToMainController();
+                // If creds are correct, record the user that is logging in and move to main controller
+                if(rs.next()) {
+                    loggedUserID = rs.getInt(1);
+                    switchToMainController();
+                }
+                else {
+                    exceptionLabel.setText(languageBundle.getString("invalidCredentialsException"));
+                }
             }
-            else {
-                exceptionLabel.setText(languageBundle.getString("invalidCredentialsException"));
+            catch (SQLException e) {
+                System.out.println("Error authorizing user against database.");
             }
         }
     }
@@ -102,7 +113,7 @@ public class LoginController implements Initializable {
     private void switchToMainController() throws IOException {
         // Load the FXML file.
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
-        MainController controller = new MainController();
+        MainController controller = new MainController(loggedUserID);
         loader.setController(controller);
         Parent root = loader.load();
 

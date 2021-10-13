@@ -45,6 +45,9 @@ public class ViewCustomerController implements Initializable {
 
     private Customer selectedCustomer;
 
+    // Variable for tracking the user logged in
+    private int loggedUserID;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setCellFactoryValues();
@@ -62,6 +65,10 @@ public class ViewCustomerController implements Initializable {
                 deleteButton.setVisible(true);
             }
         });
+    }
+
+    public ViewCustomerController(int loggedUserID) {
+        this.loggedUserID = loggedUserID;
     }
 
     // DONE
@@ -157,7 +164,7 @@ public class ViewCustomerController implements Initializable {
     private void switchToMainController() throws IOException {
         // Load the FXML file.
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
-        MainController controller = new MainController();
+        MainController controller = new MainController(loggedUserID);
         loader.setController(controller);
         Parent root = loader.load();
 
@@ -175,7 +182,7 @@ public class ViewCustomerController implements Initializable {
     private void switchToUpdateCustomerController() throws IOException {
         // Load the FXML file.
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/UpdateCustomerController.fxml"));
-        UpdateCustomerController controller = new UpdateCustomerController(selectedCustomer);
+        UpdateCustomerController controller = new UpdateCustomerController(selectedCustomer, loggedUserID);
         loader.setController(controller);
         Parent root = loader.load();
 

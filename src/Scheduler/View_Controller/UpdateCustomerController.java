@@ -49,11 +49,25 @@ public class UpdateCustomerController implements Initializable {
     private String address;
     private String postalCode;
     private String phoneNumber;
+    private String lastUpdate;
+    private String lastUpdatedBy;
     private String selectedDivisionID;
     private String selectedCountryName;
     private int selectedCountryID;
 
-    public UpdateCustomerController(Customer selectedCustomer) {
+    // Variable for tracking the user logged in
+    private int loggedUserID;
+
+    // DONE
+    // Calls all the methods to prepopulate fields and menu options
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        prepopulateCountryOptions();
+        prepopulateDivisionOptions(selectedCountryID);
+        prepopulateCustomerInfoFields();
+    }
+
+    public UpdateCustomerController(Customer selectedCustomer, int loggedUserID) {
         // Assign values to local instance variables based on provided customer
         this.selectedCustomer = selectedCustomer;
         this.name = selectedCustomer.getName();
@@ -63,15 +77,7 @@ public class UpdateCustomerController implements Initializable {
         this.selectedDivisionID = "" + selectedCustomer.getDivisionID();
         this.selectedCountryName = selectedCustomer.getCountryName();
         this.selectedCountryID = selectedCustomer.getCountryID();
-    }
-
-    // DONE
-    // Calls all the methods to prepopulate fields and menu options
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        prepopulateCountryOptions();
-        prepopulateDivisionOptions(selectedCountryID);
-        prepopulateCustomerInfoFields();
+        this.loggedUserID = loggedUserID;
     }
 
     // DONE
@@ -213,15 +219,20 @@ public class UpdateCustomerController implements Initializable {
                 SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-                String lastUpdate = utcFormat.format(new Date());
-                String lastUpdatedBy = "script";
+                lastUpdate = utcFormat.format(new Date());
 
-                // Retrieves current logged in, used for auditing the user that created and last updated the customer record
+                // Retrieves current logged in, used for auditing the user that added the customer
                 try {
-                    lastUpdatedBy = JDBC.connection.getMetaData().getUserName();
+                    String query = "SELECT User_Name FROM users WHERE User_ID = " + loggedUserID;
+                    Statement st = JDBC.connection.createStatement();
+                    ResultSet rs = st.executeQuery(query);
+
+                    while(rs.next()) {
+                        lastUpdatedBy = rs.getString(1);
+                    }
                 }
                 catch (SQLException e) {
-                    System.out.println("Error retrieving metadata information to retrieve current username.");
+                    System.out.println("Error retrieving information to retrieve the logged in user's information.");
                 }
 
                 // DB Query to update the existing customer record
@@ -259,7 +270,7 @@ public class UpdateCustomerController implements Initializable {
         try {
             // Load the FXML file.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/ViewCustomerController.fxml"));
-            ViewCustomerController controller = new ViewCustomerController();
+            ViewCustomerController controller = new ViewCustomerController(loggedUserID);
             loader.setController(controller);
             Parent root = loader.load();
 
