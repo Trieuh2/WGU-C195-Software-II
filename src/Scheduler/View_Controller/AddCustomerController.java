@@ -1,4 +1,6 @@
 package Scheduler.View_Controller;
+
+import Model.Customer;
 import helper.JDBC;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -7,16 +9,19 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
@@ -35,32 +40,16 @@ public class AddCustomerController implements Initializable {
     @FXML MenuButton countryMenu;
     @FXML MenuButton divisionMenu;
 
-    // Required fields to add a customer in the DB
-    private int customerID;
-    private String name;
-    private String address;
-    private String postalCode;
-    private String phoneNumber;
-    private String createDate;
-    private String createdBy;
-    private String lastUpdate;
-    private String lastUpdatedBy;
-    private String selectedDivisionID;
-
-    private String selectedCountry;
-    private int selectedCountryID;
+    // New customer that is added to the DB
+    private Customer newCustomer;
 
     // Variable for tracking the user logged in
-    private int loggedUserID;
+    private final int loggedUserID;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        name = "";
-        address = "";
-        postalCode = "";
-        phoneNumber = "";
-        selectedDivisionID = "";
-
+        newCustomer = new Customer();
+        retrieveUsernameLoggedIn();
         prepopulateCustomerID();
         prepopulateCountryOptions();
         divisionMenu.setDisable(true);
@@ -70,10 +59,10 @@ public class AddCustomerController implements Initializable {
         this.loggedUserID = loggedUserID;
     }
 
-    // Pre-populates an untaken customer ID
+    // Pre-populates an un-taken customer ID
     private void prepopulateCustomerID() {
         try {
-            customerID = 1;
+            int maxCustomerID = 1;
 
             // DB Query
             String query = "SELECT MAX(Customer_ID) FROM customers";
@@ -81,11 +70,11 @@ public class AddCustomerController implements Initializable {
             ResultSet rs = st.executeQuery(query);
 
             while(rs.next()) {
-                customerID= rs.getInt(1);
+                maxCustomerID= rs.getInt(1);
             }
 
-            customerID++;
-            custIDTextField.setText("" + customerID);
+            newCustomer.setID(++maxCustomerID);
+            custIDTextField.setText("" + newCustomer.getID());
         }
         catch (SQLException e) {
             System.out.println("Error retrieving Customer_IDs from the database");
@@ -95,14 +84,12 @@ public class AddCustomerController implements Initializable {
     // Pre-populates the country options into the menu box
     private void prepopulateCountryOptions() {
         try {
-            ArrayList<String> countryNames = new ArrayList<String>();
-
             // DB Query
             String query = "SELECT Country FROM countries";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
-            // Add the country options to the ArrayList
+            // Add each Country option found in the DB and add it to the MenuButton
             while(rs.next()) {
                 // Create Menu Items for each Country found in the DB
                 MenuItem menuItem = new MenuItem(rs.getString(1));
@@ -111,31 +98,31 @@ public class AddCustomerController implements Initializable {
                 menuItem.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        selectedCountry = menuItem.getText();
+                        newCustomer.setCountryName(menuItem.getText());
                         countryMenu.setText(menuItem.getText());
 
                         // Reset the division selection when a country is selected
                         divisionMenu.setDisable(false);
                         divisionMenu.setText("Select");
                         divisionMenu.getItems().clear();
-                        selectedDivisionID = null;
+                        newCustomer.setDivisionID(-1);
 
                         // Get the country ID that will be used for pre-populating the division selection
                         try {
                             // DB Query
-                            String query = "SELECT Country_ID FROM countries WHERE Country = '" + selectedCountry + "'";
+                            String query = "SELECT Country_ID FROM countries WHERE Country = '" + newCustomer.getCountryName() + "'";
                             Statement st = JDBC.connection.createStatement();
                             ResultSet rs = st.executeQuery(query);
 
                             while(rs.next()) {
-                                selectedCountryID = rs.getInt(1);
+                                newCustomer.setCountryID(rs.getInt(1));
                             }
                         }
                         catch(SQLException e) {
                             System.out.println("Error fetching countries from the database.");
                         }
                         // Populate the division options within the drop-down menu depending on the country selection
-                        prepopulateDivisionOptions(selectedCountryID);
+                        prepopulateDivisionOptions();
                     }
                 });
                 // Add the discovered country to the menu
@@ -148,11 +135,11 @@ public class AddCustomerController implements Initializable {
     }
 
     // Pre-populates State and Division options based off the country selection
-    private void prepopulateDivisionOptions(int id) {
+    private void prepopulateDivisionOptions() {
         // Query all the first level divisions from the DB
         try {
             // DB Query
-            String query = "SELECT Division FROM first_level_divisions WHERE Country_ID = '" + selectedCountryID + "'";
+            String query = "SELECT Division FROM first_level_divisions WHERE Country_ID = '" + newCustomer.getCountryID() + "'";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
@@ -166,16 +153,16 @@ public class AddCustomerController implements Initializable {
                     public void handle(ActionEvent actionEvent) {
                         try {
                             // Update GUI and set values
-                            String divisionName = menuItem.getText();
-                            divisionMenu.setText(divisionName);
+                            newCustomer.setDivisionName(menuItem.getText());
+                            divisionMenu.setText(menuItem.getText());
 
                             // DB Query
-                            String query = "SELECT Division_ID FROM first_level_divisions WHERE Division = '" + divisionName + "'";
+                            String query = "SELECT Division_ID FROM first_level_divisions WHERE Division = '" + menuItem.getText() + "'";
                             Statement st = JDBC.connection.createStatement();
                             ResultSet rs = st.executeQuery(query);
 
                             while(rs.next()) {
-                                selectedDivisionID = rs.getString(1);
+                                newCustomer.setDivisionID(rs.getInt(1));
                             }
                         }
                         catch(SQLException e) {
@@ -195,46 +182,32 @@ public class AddCustomerController implements Initializable {
 
     @FXML
     private void addCustomer() {
-        name = custNameTextField.getText();
-        address = custAddressTextField.getText();
-        postalCode = custPostalCodeTextField.getText();
-        phoneNumber = custPhoneNumberTextField.getText();
+        newCustomer.setName(custNameTextField.getText());
+        newCustomer.setAddress(custAddressTextField.getText());
+        newCustomer.setPostalCode(custPostalCodeTextField.getText());
+        newCustomer.setPhoneNumber(custPhoneNumberTextField.getText());
 
-        if(!name.isEmpty() && !address.isEmpty() && (selectedCountry != null) && (selectedDivisionID != null) && !postalCode.isEmpty() && !phoneNumber.isEmpty()) {
+        // Check to ensure that no values are unassigned
+        if(allFieldsFilled()) {
             // Add customer to DB
             try {
                 SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-                createDate = utcFormat.format(new Date());
-                lastUpdate = utcFormat.format(new Date());
+                newCustomer.setCreateDate(utcFormat.format(new Date()));
+                newCustomer.setLastUpdate(utcFormat.format(new Date()));
 
-                // Retrieves current logged in, used for auditing the user that added the customer
-                try {
-                    String query = "SELECT User_Name FROM users WHERE User_ID = " + loggedUserID;
-                    Statement st = JDBC.connection.createStatement();
-                    ResultSet rs = st.executeQuery(query);
-
-                    while(rs.next()) {
-                        createdBy = rs.getString(1);
-                        lastUpdatedBy = rs.getString(1);
-                    }
-                }
-                catch (SQLException e) {
-                    System.out.println("Error retrieving information to retrieve the logged in user's information.");
-                }
-
-                // DB Query for adding user
-                String update = "INSERT INTO customers VALUES (" + customerID
-                                                                + ", '" + name + "', '"
-                                                                + address + "', '"
-                                                                + postalCode + "', '"
-                                                                + phoneNumber + "', '"
-                                                                + createDate + "', '"
-                                                                + createdBy + "', '"
-                                                                + lastUpdate + "', '"
-                                                                + lastUpdatedBy + "', "
-                                                                + selectedDivisionID + ")";
+                // DB Query for adding Customer
+                String update = "INSERT INTO customers VALUES (" + newCustomer.getID()
+                                                                + ", '" + newCustomer.getName() + "', '"
+                                                                + newCustomer.getAddress() + "', '"
+                                                                + newCustomer.getPostalCode() + "', '"
+                                                                + newCustomer.getPhoneNumber() + "', '"
+                                                                + newCustomer.getCreateDate() + "', '"
+                                                                + newCustomer.getCreatedBy() + "', '"
+                                                                + newCustomer.getLastUpdate() + "', '"
+                                                                + newCustomer.getLastUpdatedBy() + "', "
+                                                                + newCustomer.getDivisionID() + ")";
                 Statement st = JDBC.connection.createStatement();
                 st.executeUpdate(update);
 
@@ -250,6 +223,36 @@ public class AddCustomerController implements Initializable {
             alert.setTitle("Error");
             alert.setContentText("All fields must have a value.");
             alert.show();
+        }
+    }
+
+    private void retrieveUsernameLoggedIn() {
+        // Retrieves current logged in, used for auditing the user that added the customer
+        try {
+            String query = "SELECT User_Name FROM users WHERE User_ID = " + loggedUserID;
+            Statement st = JDBC.connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while(rs.next()) {
+                newCustomer.setCreatedBy(rs.getString(1));
+                newCustomer.setLastUpdatedBy(rs.getString(1));
+            }
+        }
+        catch (SQLException e) {
+            System.out.println("Error retrieving logged in user's information.");
+        }
+    }
+
+    private boolean allFieldsFilled() {
+        if(!newCustomer.getName().isEmpty() &&
+                (!newCustomer.getAddress().isEmpty()) &&
+                (newCustomer.getDivisionID() >= 1) &&
+                (!newCustomer.getPostalCode().isEmpty()) &&
+                (!newCustomer.getPhoneNumber().isEmpty()) ) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 

@@ -1,7 +1,6 @@
 package Model;
 
 import helper.JDBC;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,11 +16,17 @@ public class Customer {
     private int divisionID;
     private String divisionName;
 
+    private String createDate;
+    private String createdBy;
+    private String lastUpdate;
+    private String lastUpdatedBy;
+
     // Constructors
     public Customer() {
 
     }
 
+    // Complete constructor
     public Customer(int ID, String name, String address, String postalCode, String phoneNumber, int divisionID) {
         this.ID = ID;
         this.name = name;
@@ -29,9 +34,39 @@ public class Customer {
         this.postalCode = postalCode;
         this.phoneNumber = phoneNumber;
         this.divisionID = divisionID;
-        setDivisionName();
-        setCountryID();
-        setCountryName();
+
+        // Use the divisionID to set the divisionName and CountryID
+        try {
+            // DB Query
+            String query = "SELECT Division, Country_ID FROM first_level_divisions WHERE Division_ID = '" + this.divisionID + "'";
+            Statement st = JDBC.connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while(rs.next()) {
+                // Pull the divisionName and countryID from DB
+                this.divisionName = rs.getString(1);
+                this.countryID = rs.getInt(2);
+            }
+        }
+        catch(SQLException e) {
+            System.out.println("Error fetching divisions from the database.");
+        }
+
+        // Use the CountryID to set the CountryName
+        try {
+            // DB Query
+            String query = "SELECT Country FROM countries WHERE Country_ID = '" + this.countryID + "'";
+            Statement st = JDBC.connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while(rs.next()) {
+                // Pull the divisionName and countryID from DB
+                this.countryName = rs.getString(1);
+            }
+        }
+        catch(SQLException e) {
+            System.out.println("Error retrieving country names from the database.");
+        }
     }
 
     // Accessor methods
@@ -71,6 +106,22 @@ public class Customer {
         return divisionName;
     }
 
+    public String getCreateDate() {
+        return createDate;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public String getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public String getLastUpdatedBy() {
+        return lastUpdatedBy;
+    }
+
     // Checks if the customer has any appointments associated
     public boolean hasAppointments() {
         boolean hasAppointments = false;
@@ -91,49 +142,57 @@ public class Customer {
         return hasAppointments;
     }
 
-    // Sets the Division Name based off of the Division ID used to create the Customer
-    private void setDivisionName() {
-        try {
-            // DB Query
-            String query = "SELECT Division FROM first_level_divisions WHERE Division_ID = '" + this.divisionID + "'";
-            Statement st = JDBC.connection.createStatement();
-            ResultSet rs = st.executeQuery(query);
+    public void setID(int ID) {
+        this.ID = ID;
+    }
 
-            while(rs.next()) {
-                divisionName = rs.getString(1);
-            }
-        }
-        catch(SQLException e) {
-            System.out.println("Error fetching division name from database.");
-        }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     // Sets the Country ID based off the Division ID used to create the Customer
-    private void setCountryID() {
-        try {
-            // DB Query
-            String query = "SELECT COUNTRY_ID FROM first_level_divisions WHERE Division_ID = '" + this.divisionID + "'";
-            Statement st = JDBC.connection.createStatement();
-            ResultSet rs = st.executeQuery(query);
-
-            while(rs.next()) {
-                countryID = rs.getInt(1);
-            }
-        }
-        catch(SQLException e) {
-            System.out.println("Error fetching Country_ID for selected customer from database.");
-        }
+    public void setCountryID(int countryID) {
+        this.countryID = countryID;
     }
 
-    private void setCountryName() {
-        if(countryID == 1) {
-            countryName = "U.S";
-        }
-        else if(countryID == 2) {
-            countryName = "UK";
-        }
-        else {
-            countryName = "Canada";
-        }
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
+    }
+
+    public void setDivisionID(int divisionID) {
+        this.divisionID = divisionID;
+    }
+
+    // Sets the Division Name based off of the Division ID used to create the Customer
+    public void setDivisionName(String divisionName) {
+        this.divisionName = divisionName;
+    }
+
+    public void setCreateDate(String createDate) {
+        this.createDate = createDate;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public void setLastUpdate(String lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public void setLastUpdatedBy(String lastUpdatedBy) {
+        this.lastUpdatedBy = lastUpdatedBy;
     }
 }

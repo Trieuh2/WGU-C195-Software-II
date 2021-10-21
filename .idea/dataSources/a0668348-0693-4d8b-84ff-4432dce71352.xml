@@ -3,6 +3,140 @@
   <database-model serializer="dbm" dbms="MYSQL" family-id="MYSQL" format-version="4.23">
     <root id="1">
       <ServerVersion>8.0.26</ServerVersion>
+      <Grants>|root||root|localhost|ALTER|G
+|root||sqlUser|localhost|ALTER|G
+|root||root|localhost|ALTER ROUTINE|G
+|root||sqlUser|localhost|ALTER ROUTINE|G
+|root||root|localhost|APPLICATION_PASSWORD_ADMIN|G
+|root||sqlUser|localhost|APPLICATION_PASSWORD_ADMIN|G
+|root||root|localhost|AUDIT_ADMIN|G
+|root||sqlUser|localhost|AUDIT_ADMIN|G
+|root||mysql.session|localhost|BACKUP_ADMIN|G
+|root||root|localhost|BACKUP_ADMIN|G
+|root||sqlUser|localhost|BACKUP_ADMIN|G
+|root||root|localhost|BINLOG_ADMIN|G
+|root||sqlUser|localhost|BINLOG_ADMIN|G
+|root||root|localhost|BINLOG_ENCRYPTION_ADMIN|G
+|root||sqlUser|localhost|BINLOG_ENCRYPTION_ADMIN|G
+|root||mysql.session|localhost|CLONE_ADMIN|G
+|root||root|localhost|CLONE_ADMIN|G
+|root||sqlUser|localhost|CLONE_ADMIN|G
+|root||mysql.session|localhost|CONNECTION_ADMIN|G
+|root||root|localhost|CONNECTION_ADMIN|G
+|root||sqlUser|localhost|CONNECTION_ADMIN|G
+|root||root|localhost|CREATE|G
+|root||sqlUser|localhost|CREATE|G
+|root||root|localhost|CREATE ROLE|G
+|root||sqlUser|localhost|CREATE ROLE|G
+|root||root|localhost|CREATE ROUTINE|G
+|root||sqlUser|localhost|CREATE ROUTINE|G
+|root||root|localhost|CREATE TABLESPACE|G
+|root||sqlUser|localhost|CREATE TABLESPACE|G
+|root||root|localhost|CREATE TEMPORARY TABLES|G
+|root||sqlUser|localhost|CREATE TEMPORARY TABLES|G
+|root||root|localhost|CREATE USER|G
+|root||sqlUser|localhost|CREATE USER|G
+|root||root|localhost|CREATE VIEW|G
+|root||sqlUser|localhost|CREATE VIEW|G
+|root||root|localhost|DELETE|G
+|root||sqlUser|localhost|DELETE|G
+|root||root|localhost|DROP|G
+|root||sqlUser|localhost|DROP|G
+|root||root|localhost|DROP ROLE|G
+|root||sqlUser|localhost|DROP ROLE|G
+|root||root|localhost|ENCRYPTION_KEY_ADMIN|G
+|root||sqlUser|localhost|ENCRYPTION_KEY_ADMIN|G
+|root||root|localhost|EVENT|G
+|root||sqlUser|localhost|EVENT|G
+|root||root|localhost|EXECUTE|G
+|root||sqlUser|localhost|EXECUTE|G
+|root||root|localhost|FILE|G
+|root||sqlUser|localhost|FILE|G
+|root||root|localhost|FLUSH_OPTIMIZER_COSTS|G
+|root||sqlUser|localhost|FLUSH_OPTIMIZER_COSTS|G
+|root||root|localhost|FLUSH_STATUS|G
+|root||sqlUser|localhost|FLUSH_STATUS|G
+|root||root|localhost|FLUSH_TABLES|G
+|root||sqlUser|localhost|FLUSH_TABLES|G
+|root||root|localhost|FLUSH_USER_RESOURCES|G
+|root||sqlUser|localhost|FLUSH_USER_RESOURCES|G
+|root||root|localhost|GROUP_REPLICATION_ADMIN|G
+|root||sqlUser|localhost|GROUP_REPLICATION_ADMIN|G
+|root||root|localhost|INDEX|G
+|root||sqlUser|localhost|INDEX|G
+|root||root|localhost|INNODB_REDO_LOG_ARCHIVE|G
+|root||sqlUser|localhost|INNODB_REDO_LOG_ARCHIVE|G
+|root||root|localhost|INNODB_REDO_LOG_ENABLE|G
+|root||sqlUser|localhost|INNODB_REDO_LOG_ENABLE|G
+|root||root|localhost|INSERT|G
+|root||sqlUser|localhost|INSERT|G
+|root||root|localhost|LOCK TABLES|G
+|root||sqlUser|localhost|LOCK TABLES|G
+|root||mysql.session|localhost|PERSIST_RO_VARIABLES_ADMIN|G
+|root||root|localhost|PERSIST_RO_VARIABLES_ADMIN|G
+|root||sqlUser|localhost|PERSIST_RO_VARIABLES_ADMIN|G
+|root||root|localhost|PROCESS|G
+|root||sqlUser|localhost|PROCESS|G
+|root||root|localhost|REFERENCES|G
+|root||sqlUser|localhost|REFERENCES|G
+|root||root|localhost|RELOAD|G
+|root||sqlUser|localhost|RELOAD|G
+|root||root|localhost|REPLICATION CLIENT|G
+|root||sqlUser|localhost|REPLICATION CLIENT|G
+|root||root|localhost|REPLICATION SLAVE|G
+|root||sqlUser|localhost|REPLICATION SLAVE|G
+|root||root|localhost|REPLICATION_APPLIER|G
+|root||sqlUser|localhost|REPLICATION_APPLIER|G
+|root||root|localhost|REPLICATION_SLAVE_ADMIN|G
+|root||sqlUser|localhost|REPLICATION_SLAVE_ADMIN|G
+|root||root|localhost|RESOURCE_GROUP_ADMIN|G
+|root||sqlUser|localhost|RESOURCE_GROUP_ADMIN|G
+|root||root|localhost|RESOURCE_GROUP_USER|G
+|root||sqlUser|localhost|RESOURCE_GROUP_USER|G
+|root||root|localhost|ROLE_ADMIN|G
+|root||sqlUser|localhost|ROLE_ADMIN|G
+|root||mysql.infoschema|localhost|SELECT|G
+|root||root|localhost|SELECT|G
+|root||sqlUser|localhost|SELECT|G
+|root||root|localhost|SERVICE_CONNECTION_ADMIN|G
+|root||sqlUser|localhost|SERVICE_CONNECTION_ADMIN|G
+|root||mysql.session|localhost|SESSION_VARIABLES_ADMIN|G
+|root||root|localhost|SESSION_VARIABLES_ADMIN|G
+|root||sqlUser|localhost|SESSION_VARIABLES_ADMIN|G
+|root||root|localhost|SET_USER_ID|G
+|root||sqlUser|localhost|SET_USER_ID|G
+|root||root|localhost|SHOW DATABASES|G
+|root||sqlUser|localhost|SHOW DATABASES|G
+|root||root|localhost|SHOW VIEW|G
+|root||sqlUser|localhost|SHOW VIEW|G
+|root||root|localhost|SHOW_ROUTINE|G
+|root||sqlUser|localhost|SHOW_ROUTINE|G
+|root||mysql.session|localhost|SHUTDOWN|G
+|root||root|localhost|SHUTDOWN|G
+|root||sqlUser|localhost|SHUTDOWN|G
+|root||mysql.session|localhost|SUPER|G
+|root||root|localhost|SUPER|G
+|root||sqlUser|localhost|SUPER|G
+|root||mysql.infoschema|localhost|SYSTEM_USER|G
+|root||mysql.session|localhost|SYSTEM_USER|G
+|root||mysql.sys|localhost|SYSTEM_USER|G
+|root||root|localhost|SYSTEM_USER|G
+|root||sqlUser|localhost|SYSTEM_USER|G
+|root||mysql.session|localhost|SYSTEM_VARIABLES_ADMIN|G
+|root||root|localhost|SYSTEM_VARIABLES_ADMIN|G
+|root||sqlUser|localhost|SYSTEM_VARIABLES_ADMIN|G
+|root||root|localhost|TABLE_ENCRYPTION_ADMIN|G
+|root||sqlUser|localhost|TABLE_ENCRYPTION_ADMIN|G
+|root||root|localhost|TRIGGER|G
+|root||sqlUser|localhost|TRIGGER|G
+|root||root|localhost|UPDATE|G
+|root||sqlUser|localhost|UPDATE|G
+|root||root|localhost|XA_RECOVER_ADMIN|G
+|root||sqlUser|localhost|XA_RECOVER_ADMIN|G
+|root||root|localhost|grant option|G
+|root||sqlUser|localhost|grant option|G
+performance_schema|schema||mysql.session|localhost|SELECT|G
+sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <DefaultEngine>InnoDB</DefaultEngine>
       <DefaultTmpEngine>InnoDB</DefaultTmpEngine>
       <DefaultCasing>lower/lower</DefaultCasing>
@@ -888,18 +1022,23 @@
     </collation>
     <user id="281" parent="1" name="mysql.infoschema">
       <Host>localhost</Host>
+      <Plugin>caching_sha2_password</Plugin>
     </user>
     <user id="282" parent="1" name="mysql.session">
       <Host>localhost</Host>
+      <Plugin>caching_sha2_password</Plugin>
     </user>
     <user id="283" parent="1" name="mysql.sys">
       <Host>localhost</Host>
+      <Plugin>caching_sha2_password</Plugin>
     </user>
     <user id="284" parent="1" name="root">
       <Host>localhost</Host>
+      <Plugin>caching_sha2_password</Plugin>
     </user>
     <user id="285" parent="1" name="sqlUser">
       <Host>localhost</Host>
+      <Plugin>caching_sha2_password</Plugin>
     </user>
     <table id="286" parent="2" name="appointments"/>
     <table id="287" parent="2" name="contacts"/>

@@ -1,8 +1,6 @@
 package Scheduler.View_Controller;
 import Model.Customer;
 import helper.JDBC;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -127,8 +125,10 @@ public class ViewCustomerController implements Initializable {
                 Statement st = JDBC.connection.createStatement();
                 st.executeUpdate(update);
 
-                // Re-load the table after deleting the customer from the DB
+                // Re-load the table after deleting the customer from the DB and hide the edit button since there is no
+                // customer selected
                 loadTable();
+                editButton.setVisible(false);
 
                 // Display a custom message to confirm successful deletion
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
