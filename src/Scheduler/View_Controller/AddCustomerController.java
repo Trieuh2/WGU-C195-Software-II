@@ -45,9 +45,12 @@ public class AddCustomerController implements Initializable {
 
     // Variable for tracking the user logged in
     private final int loggedUserID;
+    private String loggedUsername;
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    public void initialize(URL url, ResourceBundle rb)
+    {
+        loggedUsername = retrieveUsernameLoggedIn();
         newCustomer = new Customer();
         retrieveUsernameLoggedIn();
         prepopulateCustomerID();
@@ -182,20 +185,20 @@ public class AddCustomerController implements Initializable {
 
     @FXML
     private void addCustomer() {
-        newCustomer.setName(custNameTextField.getText());
-        newCustomer.setAddress(custAddressTextField.getText());
-        newCustomer.setPostalCode(custPostalCodeTextField.getText());
-        newCustomer.setPhoneNumber(custPhoneNumberTextField.getText());
-
         // Check to ensure that no values are unassigned
         if(allFieldsFilled()) {
+            // Parse the TextField values into variables
+            parseTextFields();
+
             // Add customer to DB
             try {
                 SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
                 newCustomer.setCreateDate(utcFormat.format(new Date()));
+                newCustomer.setCreatedBy(loggedUsername);
                 newCustomer.setLastUpdate(utcFormat.format(new Date()));
+                newCustomer.setLastUpdatedBy(loggedUsername);
 
                 // DB Query for adding Customer
                 String update = "INSERT INTO customers VALUES (" + newCustomer.getID()
@@ -228,7 +231,9 @@ public class AddCustomerController implements Initializable {
         }
     }
 
-    private void retrieveUsernameLoggedIn() {
+    private String retrieveUsernameLoggedIn() {
+        String username = "";
+
         // Retrieves current logged in, used for auditing the user that added the customer
         try {
             String query = "SELECT User_Name FROM users WHERE User_ID = " + loggedUserID;
@@ -236,26 +241,36 @@ public class AddCustomerController implements Initializable {
             ResultSet rs = st.executeQuery(query);
 
             while(rs.next()) {
-                newCustomer.setCreatedBy(rs.getString(1));
-                newCustomer.setLastUpdatedBy(rs.getString(1));
+                username = rs.getString("User_Name");
             }
         }
         catch (SQLException e) {
             System.out.println("Error retrieving logged in user's information.");
         }
+
+        return username;
     }
 
+    // Checks to ensure that all fields on the form have been provided a value
     private boolean allFieldsFilled() {
-        if(!newCustomer.getName().isEmpty() &&
-                (!newCustomer.getAddress().isEmpty()) &&
+        if(!custNameTextField.getText().isEmpty() &&
+                (!custAddressTextField.getText().isEmpty()) &&
                 (newCustomer.getDivisionID() >= 1) &&
-                (!newCustomer.getPostalCode().isEmpty()) &&
-                (!newCustomer.getPhoneNumber().isEmpty()) ) {
+                (!custPostalCodeTextField.getText().isEmpty()) &&
+                (!custPhoneNumberTextField.getText().isEmpty()) ) {
             return true;
         }
         else {
             return false;
         }
+    }
+
+    // Get values from the TextFields and store them in variables
+    private void parseTextFields() {
+        newCustomer.setName(custNameTextField.getText());
+        newCustomer.setAddress(custAddressTextField.getText());
+        newCustomer.setPostalCode(custPostalCodeTextField.getText());
+        newCustomer.setPhoneNumber(custPhoneNumberTextField.getText());
     }
 
     // Closes current scene and switches back to the main controller

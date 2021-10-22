@@ -50,12 +50,19 @@ public class ViewCustomerController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         setCellFactoryValues();
         loadCustomers();
+        initializeTableViewListener();
 
         // Edit and Delete buttons are only visible when a change is made to a customer record
         editButton.setVisible(false);
         deleteButton.setVisible(false);
+    }
 
-        // Add a listener to the tableView
+    public ViewCustomerController(int loggedUserID) {
+        this.loggedUserID = loggedUserID;
+    }
+
+    // Add a listener to the tableView
+    private void initializeTableViewListener() {
         customerTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if(newSelection != null) {
                 selectedCustomer = customerTableView.getSelectionModel().getSelectedItem();
@@ -65,11 +72,6 @@ public class ViewCustomerController implements Initializable {
         });
     }
 
-    public ViewCustomerController(int loggedUserID) {
-        this.loggedUserID = loggedUserID;
-    }
-
-    // DONE
     // Sets the column names and accepted property in the column
     private void setCellFactoryValues() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("ID"));
@@ -80,7 +82,6 @@ public class ViewCustomerController implements Initializable {
         divisionColumn.setCellValueFactory(new PropertyValueFactory<>("divisionName"));
     }
 
-    // DONE
     // Fetches all the customers from the DB and loads it into the TableView
     private void loadCustomers() {
         // Clear the table and selection before loading/reloading customers into the table
@@ -113,7 +114,6 @@ public class ViewCustomerController implements Initializable {
         }
     }
 
-    // DONE
     // Deletes the selected customer if there are no appointments
     @FXML
     private void deleteCustomer() {
@@ -151,14 +151,12 @@ public class ViewCustomerController implements Initializable {
         }
     }
 
-    // DONE
     // Closes the current window
     private void closeCurrentWindow() {
         Stage currentStage = (Stage)viewCustomerAnchorPane.getScene().getWindow();
         currentStage.close();
     }
 
-    // DONE
     // Closes the screen and switches to MainController where the appointment calendar is displayed
     @FXML
     private void switchToMainController() throws IOException {
@@ -176,7 +174,6 @@ public class ViewCustomerController implements Initializable {
         stage.show();
     }
 
-    // DONE
     // Closes the screen and switches to the UpdateCustomerController screen where the customer's information can be updated
     @FXML
     private void switchToUpdateCustomerController() throws IOException {

@@ -14,6 +14,9 @@
             <TableColumn fx:id="phoneNumberColumn" prefWidth="153.0" text="Phone Number" />
             <TableColumn fx:id="divisionColumn" prefWidth="174.0" text="State/Region" />
         </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
       </TableView>
       <Button fx:id="exitButton" layoutX="851.0" layoutY="477.0" mnemonicParsing="false" onAction="#switchToMainController" text="Exit" />
       <Button fx:id="deleteButton" layoutX="792.0" layoutY="477.0" mnemonicParsing="false" onAction="#deleteCustomer" text="Delete" AnchorPane.rightAnchor="63.0" />

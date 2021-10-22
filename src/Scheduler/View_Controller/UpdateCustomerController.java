@@ -40,59 +40,39 @@ public class UpdateCustomerController implements Initializable {
     @FXML MenuButton countryMenu;
     @FXML MenuButton divisionMenu;
 
-    // Customer fields
-    private Customer selectedCustomer;
-
-    // Updatable customer fields
-    private String name;
-    private String address;
-    private String postalCode;
-    private String phoneNumber;
-    private String lastUpdate;
-    private String lastUpdatedBy;
-    private String selectedDivisionID;
-    private String selectedCountryName;
-    private int selectedCountryID;
+    // Temporary Customer object used to update the values for the Customer selected from the previous screen
+    private Customer updatedCustomer;
 
     // Variable for tracking the user logged in
     private int loggedUserID;
+    private String loggedUsername;
 
-    // DONE
     // Calls all the methods to prepopulate fields and menu options
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        loggedUsername = retrieveUsernameLoggedIn();
         prepopulateCountryOptions();
-        prepopulateDivisionOptions(selectedCountryID);
+        prepopulateDivisionOptions(updatedCustomer.getCountryID());
         prepopulateCustomerInfoFields();
     }
 
     public UpdateCustomerController(Customer selectedCustomer, int loggedUserID) {
-        // Assign values to local instance variables based on provided customer
-        this.selectedCustomer = selectedCustomer;
-        this.name = selectedCustomer.getName();
-        this.address = selectedCustomer.getAddress();
-        this.postalCode = selectedCustomer.getPostalCode();
-        this.phoneNumber = selectedCustomer.getPhoneNumber();
-        this.selectedDivisionID = "" + selectedCustomer.getDivisionID();
-        this.selectedCountryName = selectedCustomer.getCountryName();
-        this.selectedCountryID = selectedCustomer.getCountryID();
         this.loggedUserID = loggedUserID;
+        this.updatedCustomer = selectedCustomer;
     }
 
-    // DONE
     // Preloads the TextFields with the customer's information
     private void prepopulateCustomerInfoFields() {
         // Set the String in the TextFields
-        custIDTextField.setText("" + selectedCustomer.getID());
-        custNameTextField.setText(selectedCustomer.getName());
-        custAddressTextField.setText(selectedCustomer.getAddress());
-        custPostalCodeTextField.setText(selectedCustomer.getPostalCode());
-        custPhoneNumberTextField.setText(selectedCustomer.getPhoneNumber());
-        countryMenu.setText(selectedCustomer.getCountryName());
-        divisionMenu.setText(selectedCustomer.getDivisionName());
+        custIDTextField.setText("" + updatedCustomer.getID());
+        custNameTextField.setText(updatedCustomer.getName());
+        custAddressTextField.setText(updatedCustomer.getAddress());
+        custPostalCodeTextField.setText(updatedCustomer.getPostalCode());
+        custPhoneNumberTextField.setText(updatedCustomer.getPhoneNumber());
+        countryMenu.setText(updatedCustomer.getCountryName());
+        divisionMenu.setText(updatedCustomer.getDivisionName());
     }
 
-    // DONE
     // Pre-populates the country options into the menu box
     private void prepopulateCountryOptions() {
         try {
@@ -106,37 +86,37 @@ public class UpdateCustomerController implements Initializable {
             // Add the country options to the ArrayList
             while(rs.next()) {
                 // Create Menu Items for each Country found in the DB
-                MenuItem menuItem = new MenuItem(rs.getString(1));
+                MenuItem menuItem = new MenuItem(rs.getString("Country"));
 
                 // Create the different onAction events based off country selection
                 menuItem.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        selectedCountryName = menuItem.getText();
+                        updatedCustomer.setCountryName(menuItem.getText());
                         countryMenu.setText(menuItem.getText());
 
                         // Reset the division selection when a new country is selected
                         divisionMenu.setDisable(false);
                         divisionMenu.setText("Select");
                         divisionMenu.getItems().clear();
-                        selectedDivisionID = null;
+                        updatedCustomer.setDivisionID(0);
 
                         // Get the country ID that will be used for pre-populating the division selection
                         try {
                             // DB Query
-                            String query = "SELECT Country_ID FROM countries WHERE Country = '" + selectedCountryName + "'";
+                            String query = "SELECT Country_ID FROM countries WHERE Country = '" + updatedCustomer.getCountryName() + "'";
                             Statement st = JDBC.connection.createStatement();
                             ResultSet rs = st.executeQuery(query);
 
                             while(rs.next()) {
-                                selectedCountryID = rs.getInt(1);
+                                updatedCustomer.setCountryID(rs.getInt("Country_ID"));
                             }
                         }
                         catch(SQLException e) {
                             System.out.println("Error fetching countries from the database.");
                         }
 
-                        prepopulateDivisionOptions(selectedCountryID);
+                        prepopulateDivisionOptions(updatedCustomer.getCountryID());
                     }
                 });
                 countryMenu.getItems().add(menuItem);
@@ -147,13 +127,12 @@ public class UpdateCustomerController implements Initializable {
         }
     }
 
-    // DONE
     // Pre-populates State and Division options based off the country selection
     private void prepopulateDivisionOptions(int id) {
         // Query all the first level divisions from the DB
         try {
             // DB Query
-            String query = "SELECT Division FROM first_level_divisions WHERE Country_ID = '" + selectedCountryID + "'";
+            String query = "SELECT Division FROM first_level_divisions WHERE Country_ID = '" + updatedCustomer.getCountryID() + "'";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
@@ -176,7 +155,7 @@ public class UpdateCustomerController implements Initializable {
                             ResultSet rs = st.executeQuery(query);
 
                             while(rs.next()) {
-                                selectedDivisionID = rs.getString(1);
+                                updatedCustomer.setDivisionID(rs.getInt("Division_ID"));
                             }
                         }
                         catch(SQLException e) {
@@ -194,56 +173,32 @@ public class UpdateCustomerController implements Initializable {
         }
     }
 
-    // DONE
-    // Closes the current window
-    private void closeCurrentWindow() {
-        Stage currentStage = (Stage)updateCustAnchorPane.getScene().getWindow();
-        currentStage.close();
-    }
-
-    // DONE
     // Updates the customer's records with the values provided/selected
     @FXML
     private void updateCustomer() {
-        // Get values of all updatable fields
-        name = custNameTextField.getText();
-        address = custAddressTextField.getText();
-        postalCode = custPostalCodeTextField.getText();
-        phoneNumber = custPhoneNumberTextField.getText();
+        // Ensure that all fields on the form have been provided a value
+        if(allFieldsFilled()) {
+            // Parse TextField values and store them into variables for updating the Customer
+            parseTextFields();
 
-        // Ensure that none fo the updatable fields are null
-        if(!name.isEmpty() && !address.isEmpty() && (selectedCountryName != null) && (selectedDivisionID != null) && !postalCode.isEmpty() && !phoneNumber.isEmpty()) {
             // Update the customer in the DB
             try {
                 SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-                lastUpdate = utcFormat.format(new Date());
-
-                // Retrieves current logged in, used for auditing the user that added the customer
-                try {
-                    String query = "SELECT User_Name FROM users WHERE User_ID = " + loggedUserID;
-                    Statement st = JDBC.connection.createStatement();
-                    ResultSet rs = st.executeQuery(query);
-
-                    while(rs.next()) {
-                        lastUpdatedBy = rs.getString(1);
-                    }
-                }
-                catch (SQLException e) {
-                    System.out.println("Error retrieving information to retrieve the logged in user's information.");
-                }
+                updatedCustomer.setLastUpdate(utcFormat.format(new Date()));
+                updatedCustomer.setLastUpdatedBy(loggedUsername);
 
                 // DB Query to update the existing customer record
                 String update = "UPDATE customers SET " +
-                        "Customer_Name = " + "'" + name + "', " +
-                        "Address = " + "'" + address + "', " +
-                        "Postal_Code = " + "'" + postalCode + "', " +
-                        "Phone = " + "'" + phoneNumber + "', " +
-                        "Last_Update = " + "'" + lastUpdate + "', " +
-                        "Last_Updated_By = " + "'" + lastUpdatedBy + "', " +
-                        "Division_ID = " + "'" + selectedDivisionID + "'" +
-                        "WHERE Customer_ID = " + selectedCustomer.getID();
+                        "Customer_Name = " + "'" + updatedCustomer.getName() + "', " +
+                        "Address = " + "'" + updatedCustomer.getAddress() + "', " +
+                        "Postal_Code = " + "'" + updatedCustomer.getPostalCode() + "', " +
+                        "Phone = " + "'" + updatedCustomer.getPhoneNumber() + "', " +
+                        "Last_Update = " + "'" + updatedCustomer.getLastUpdate() + "', " +
+                        "Last_Updated_By = " + "'" + updatedCustomer.getLastUpdatedBy() + "', " +
+                        "Division_ID = " + "'" + updatedCustomer.getDivisionID() + "'" +
+                        "WHERE Customer_ID = " + updatedCustomer.getID();
                 Statement st = JDBC.connection.createStatement();
                 st.executeUpdate(update);
 
@@ -264,7 +219,49 @@ public class UpdateCustomerController implements Initializable {
         }
     }
 
-    // DONE
+
+    // Retrieves current logged in, used for auditing the user that added the customer
+    private String retrieveUsernameLoggedIn() {
+        String username = "";
+
+        try {
+            String query = "SELECT User_Name FROM users WHERE User_ID = " + loggedUserID;
+            Statement st = JDBC.connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while(rs.next()) {
+                username = rs.getString("User_Name");
+            }
+        }
+        catch (SQLException e) {
+            System.out.println("Error retrieving logged in user's information.");
+        }
+
+        return username;
+    }
+
+    // Checks to ensure that all fields on the form have been provided a value
+    private boolean allFieldsFilled() {
+        if(!custNameTextField.getText().isEmpty() &&
+                (!custAddressTextField.getText().isEmpty()) &&
+                (updatedCustomer.getDivisionID() >= 1) &&
+                (!custPostalCodeTextField.getText().isEmpty()) &&
+                (!custPhoneNumberTextField.getText().isEmpty()) ) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    // Get values from the TextFields and store them in variables
+    private void parseTextFields() {
+        updatedCustomer.setName(custNameTextField.getText());
+        updatedCustomer.setAddress(custAddressTextField.getText());
+        updatedCustomer.setPostalCode(custPostalCodeTextField.getText());
+        updatedCustomer.setPhoneNumber(custPhoneNumberTextField.getText());
+    }
+
     // Closes the main screen and switches to the controller where the user can view all the customers
     @FXML
     private void switchToViewCustomerController() {
@@ -285,5 +282,11 @@ public class UpdateCustomerController implements Initializable {
         catch(IOException e) {
             System.out.println("Error switching back to ViewCustomer Controller");
         }
+    }
+
+    // Closes the current window
+    private void closeCurrentWindow() {
+        Stage currentStage = (Stage)updateCustAnchorPane.getScene().getWindow();
+        currentStage.close();
     }
 }

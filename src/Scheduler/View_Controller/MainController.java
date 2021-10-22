@@ -70,8 +70,6 @@ public class MainController implements Initializable {
         initializeTableView();
         initializeRadioButtons();
         welcomeAlertDialog();
-
-        // Load the Appointments in the Monthly view by default
         monthlyWeeklyToggleGroup.selectToggle(monthlyRadioButton);
     }
 

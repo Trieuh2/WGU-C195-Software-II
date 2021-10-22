@@ -43,7 +43,14 @@ public class LoginController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         JDBC.openConnection();
+        setZoneAndLanguage();
 
+        // TODO: Remove on final commit
+        usernameTextField.setText("test");
+        passwordTextField.setText("test");
+    }
+
+    private void setZoneAndLanguage() {
         ZoneId zoneId = ZoneId.systemDefault();
         Locale locale = Locale.getDefault();
 
@@ -64,10 +71,6 @@ public class LoginController implements Initializable {
         passwordLabel.setText(languageBundle.getString("password"));
         locationLabel.setText(languageBundle.getString("location") + location);
         languageLabel.setText(languageBundle.getString("language") + language);
-
-        // TODO: Remove on final commit
-        usernameTextField.setText("test");
-        passwordTextField.setText("test");
     }
 
     // Tests the inputted credentials to see if they are the correct credentials into the database
