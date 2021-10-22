@@ -30,7 +30,7 @@ public class MainController implements Initializable {
     // Buttons
     @FXML private Button addCustomerButton;
     @FXML private Button addAppointmentButton;
-    @FXML private Button editAppointmentButton;
+    @FXML private Button updateAppointmentButton;
     @FXML private Button deleteAppointmentButton;
     @FXML private RadioButton monthlyRadioButton;
     @FXML private RadioButton weeklyRadioButton;
@@ -57,6 +57,7 @@ public class MainController implements Initializable {
 
     // Tracking variables
     private final int loggedUserID;
+    private boolean accessedViaLogin;
     private Appointment selectedAppointment;
 
     // Variables related to Appointment TableView
@@ -73,8 +74,9 @@ public class MainController implements Initializable {
         monthlyWeeklyToggleGroup.selectToggle(monthlyRadioButton);
     }
 
-    public MainController(int loggedUserID) {
+    public MainController(int loggedUserID, boolean login) {
         this.loggedUserID = loggedUserID;
+        this.accessedViaLogin = login;
     }
 
     private void loadMonthYearLabel() {
@@ -119,7 +121,7 @@ public class MainController implements Initializable {
         // Clear the table and selection before loading/reloading Appointments into the table
         appointmentTableView.getItems().clear();
         appointmentTableView.getSelectionModel().clearSelection();
-        editAppointmentButton.setVisible(false);
+        updateAppointmentButton.setVisible(false);
         deleteAppointmentButton.setVisible(false);
 
         // Load the appointments
@@ -162,7 +164,7 @@ public class MainController implements Initializable {
         appointmentTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if(newSelection != null) {
                 selectedAppointment = (Appointment) appointmentTableView.getSelectionModel().getSelectedItem();
-                editAppointmentButton.setVisible(true);
+                updateAppointmentButton.setVisible(true);
                 deleteAppointmentButton.setVisible(true);
             }
         });
@@ -179,17 +181,20 @@ public class MainController implements Initializable {
     }
 
     private void initializeRadioButtons() {
+        // Group the RadioButtons so only one can be selected at a time
         monthlyWeeklyToggleGroup = new ToggleGroup();
         monthlyRadioButton.setToggleGroup(monthlyWeeklyToggleGroup);
         weeklyRadioButton.setToggleGroup(monthlyWeeklyToggleGroup);
 
-
         // listen to changes in selected toggle
         monthlyWeeklyToggleGroup.selectedToggleProperty().addListener((observable, oldVal, newVal) -> {
             if(monthlyWeeklyToggleGroup.getSelectedToggle() == monthlyRadioButton) {
-                // Re-define the end of the range to be the end of the end of the month
+                // Re-define the range of the TableView
                 int lengthOfStartMonth = YearMonth.of(startRange.getYear(), startRange.getMonth()).lengthOfMonth();
+                LocalDateTime newStartRange = LocalDateTime.of(startRange.getYear(), startRange.getMonthValue(), 1, 0, 0);
                 LocalDateTime newEndRange = LocalDateTime.of(startRange.getYear(), startRange.getMonthValue(), lengthOfStartMonth, 0, 0);
+
+                this.startRange = newStartRange.atZone(ZoneId.systemDefault());
                 this.endRange = newEndRange.atZone(ZoneId.systemDefault());
 
                 // Update the text label and load the appointments
@@ -197,8 +202,11 @@ public class MainController implements Initializable {
                 loadAppointments();
             }
             else if(monthlyWeeklyToggleGroup.getSelectedToggle() == weeklyRadioButton) {
-                // Re-define the end of the range to be the end of the 1st week of the month
+                // Re-define the range of the TableView
+                LocalDateTime newStartRange = LocalDateTime.of(startRange.getYear(), startRange.getMonthValue(), 1, 0, 0);
                 LocalDateTime newEndRange = LocalDateTime.of(startRange.getYear(), startRange.getMonthValue(), 7, 0, 0);
+
+                this.startRange = newStartRange.atZone(ZoneId.systemDefault());
                 this.endRange = newEndRange.atZone(ZoneId.systemDefault());
 
                 // Update the text label and load the appointments
@@ -303,8 +311,8 @@ public class MainController implements Initializable {
                             (utcApptStart.isEqual(fifteenMinsLaterFromNow))) {
                     // Convert the appointment time from UTC to local time and parse the information
                     ZonedDateTime localApptStart = utcApptStart.withZoneSameInstant(ZoneId.systemDefault());
-                    String date = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(utcApptStart);
-                    String time = DateTimeFormatter.ofPattern("h:mm a").format(utcApptStart);
+                    String date = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(localApptStart);
+                    String time = DateTimeFormatter.ofPattern("h:mm a").format(localApptStart);
 
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Upcoming Appointment");
@@ -332,8 +340,19 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    private void editAppointment() {
+    private void updateAppointment() throws IOException{
+        // Load the FXML file.
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/UpdateAppointmentController.fxml"));
+        UpdateAppointmentController controller = new UpdateAppointmentController(loggedUserID, selectedAppointment);
+        loader.setController(controller);
+        Parent root = loader.load();
 
+        // Close the current window and build the MainController scene to display the appointment calendar
+        closeCurrentWindow();
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
     }
 
     @FXML
@@ -346,7 +365,7 @@ public class MainController implements Initializable {
 
             // Reload the table after deleting the Appointment from the DB and hide the edit/delete buttons since there are no customers selected
             loadAppointments();
-            editAppointmentButton.setVisible(false);
+            updateAppointmentButton.setVisible(false);
             deleteAppointmentButton.setVisible(false);
 
             // Generate a custom alert indicating that the Appointment was canceled

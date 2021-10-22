@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -20,11 +21,12 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 
-public class AddAppointmentController implements Initializable {
+public class UpdateAppointmentController implements Initializable {
 
     // AnchorPane
     @FXML AnchorPane addApptAnchorPane;
@@ -54,7 +56,7 @@ public class AddAppointmentController implements Initializable {
 
 
     // Appointment object that is going to be added
-    private Appointment newAppointment;
+    private Appointment selectedAppointment;
 
     // Start Time fields
     private int startMonth = -1;
@@ -80,62 +82,77 @@ public class AddAppointmentController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        newAppointment = new Appointment();
-        newAppointment.setUserID(loggedUserID);
         loggedUsername = getLoggedUsername();
 
-        // Prepopulate the form options
-        preSelectMonthYear();
-        generateAppointmentID();
+        // Prepopulate the form with the values associated with the selected Appointment and load the updatable options
+        preSelectTimeOptions();
+        loadTextFields();
+        loadAppointmentID();
         loadCustomers();
         loadContacts();
         loadTimeOptions();
     }
 
-    public AddAppointmentController(int loggedUserID) {
+    public UpdateAppointmentController(int loggedUserID, Appointment selectedAppointment) {
         this.loggedUserID = loggedUserID;
+        this.selectedAppointment = selectedAppointment;
     }
 
-    private void preSelectMonthYear() {
-        // Default select the current year and month
-        startYear = LocalDateTime.now().getYear();
-        startYearMenuButton.setText("" + startYear);
-        startMonth = LocalDateTime.now().getMonth().getValue();
+    // Fills out the TextFields/TextAreas with the previously provided values
+    private void loadTextFields() {
+        titleTextField.setText(selectedAppointment.getTitle());
+        descriptionTextArea.setText(selectedAppointment.getDescription());
+        locationTextField.setText(selectedAppointment.getLocation());
+        typeTextField.setText(selectedAppointment.getType());
+    }
+
+    // Default select the previously provided values for the start and end of the appointment
+    private void preSelectTimeOptions() {
+        // Start Date and Time values
+        startMonth = selectedAppointment.getLocalZonedDateTimeStart().getMonthValue();
         startMonthMenuButton.setText("" + startMonth);
 
-        endYear = LocalDateTime.now().getYear();
-        endYearMenuButton.setText("" + endYear);
-        endMonth = LocalDateTime.now().getMonth().getValue();
+        startDay = selectedAppointment.getLocalZonedDateTimeStart().getDayOfMonth();
+        startDayMenuButton.setText("" + startDay);
+
+        startYear = selectedAppointment.getUtcZonedDateTimeStart().getYear();
+        startYearMenuButton.setText("" + startYear);
+
+        startHour = selectedAppointment.getLocalZonedDateTimeStart().getHour();
+        startMin = selectedAppointment.getLocalZonedDateTimeStart().getMinute();
+        startTimeMenuButton.setText(DateTimeFormatter.ofPattern("hh:mm a").format(selectedAppointment.getLocalZonedDateTimeStart()));
+
+        // End Date and Time values
+        endMonth = selectedAppointment.getLocalZonedDateTimeEnd().getMonthValue();
         endMonthMenuButton.setText("" + endMonth);
 
+        endDay = selectedAppointment.getLocalZonedDateTimeEnd().getDayOfMonth();
+        endDayMenuButton.setText("" + endDay);
+
+        endYear = selectedAppointment.getLocalZonedDateTimeEnd().getYear();
+        endYearMenuButton.setText("" + endYear);
+
+        endHour = selectedAppointment.getLocalZonedDateTimeEnd().getHour();
+        endMin = selectedAppointment.getLocalZonedDateTimeEnd().getMinute();
+        endTimeMenuButton.setText(DateTimeFormatter.ofPattern("hh:mm a").format(selectedAppointment.getLocalZonedDateTimeEnd()));
+
+        // Prepopulate the day options depending on the month and year selected
         prepopulateDayOptions(startMonth, startYear,"Start");
         prepopulateDayOptions(endMonth, endYear,"End");
     }
 
     // Pre-populates the appointment ID for the new appointment being added
-    private void generateAppointmentID() {
-        try {
-            int maxAppointmentID = 1;
-
-            // DB Query
-            String query = "SELECT MAX(Appointment_ID) FROM appointments";
-            Statement st = JDBC.connection.createStatement();
-            ResultSet rs = st.executeQuery(query);
-
-            while(rs.next()) {
-                maxAppointmentID= rs.getInt(1);
-            }
-
-            newAppointment.setID(++maxAppointmentID);
-            appointmentIDTextField.setText("" + maxAppointmentID);
-        }
-        catch (SQLException e) {
-            System.out.println("Error retrieving Appointment_IDs from the database");
-        }
+    private void loadAppointmentID() {
+        appointmentIDTextField.setText("" + selectedAppointment.getAppointmentID());
     }
 
     // Pre-populates the options within the drop-down menu for customers
     private void loadCustomers() {
+        // Pre-select the Customer associated with the Appointment
+        customerMenuButton.setText(selectedAppointment.getCustomerName());
+        customerSelected = true;
+
+        // Populate the options
         try {
             // DB Query
             String query = "SELECT * FROM customers";
@@ -155,7 +172,7 @@ public class AddAppointmentController implements Initializable {
                         customerMenuButton.setText(customerMenuItem.getText());
 
                         // Record the selected Contact for the appointment
-                        newAppointment.setCustomerID(customerID);
+                        selectedAppointment.setCustomerID(customerID);
 
                         // Flag that a customer has been selected
                         customerSelected = true;
@@ -171,6 +188,11 @@ public class AddAppointmentController implements Initializable {
 
     // Pre-populates the options within the drop-down menu for contacts
     private void loadContacts() {
+        // Pre-select the Customer associated with the Appointment
+        contactMenuButton.setText(selectedAppointment.getContactName());
+        contactSelected = true;
+
+        // Populate the options
         try {
             // DB Query
             String query = "SELECT * FROM contacts";
@@ -191,7 +213,7 @@ public class AddAppointmentController implements Initializable {
                         contactMenuButton.setText(contactMenuItem.getText());
 
                         // Record the selected Contact for the appointment
-                        newAppointment.setContactID(contactID);
+                        selectedAppointment.setContactID(contactID);
 
                         // Flag that a contact has been selected
                         contactSelected = true;
@@ -430,55 +452,52 @@ public class AddAppointmentController implements Initializable {
 
     // Adds the appointment to the Database
     @FXML
-    private void addAppointment() {
+    private void updateAppointment() {
         // Check to ensure that all fields on the form are filled
         if(allFieldsFilled()) {
             // Take values from TextFields/TextAreas and assign it to the Appointment being added
-            newAppointment.setTitle(titleTextField.getText());
-            newAppointment.setDescription(descriptionTextArea.getText());
-            newAppointment.setLocation(locationTextField.getText());
-            newAppointment.setType(typeTextField.getText());
-            newAppointment.setUtcZonedDateTimeStart(startYear, startMonth, startDay, startHour, startMin, 0);
-            newAppointment.setUtcZonedDateTimeEnd(endYear, endMonth, endDay, endHour, endMin, 0);
+            selectedAppointment.setTitle(titleTextField.getText());
+            selectedAppointment.setDescription(descriptionTextArea.getText());
+            selectedAppointment.setLocation(locationTextField.getText());
+            selectedAppointment.setType(typeTextField.getText());
+            selectedAppointment.setUtcZonedDateTimeStart(startYear, startMonth, startDay, startHour, startMin, 0);
+            selectedAppointment.setUtcZonedDateTimeEnd(endYear, endMonth, endDay, endHour, endMin, 0);
 
             SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-            newAppointment.setCreateDate(utcFormat.format(new Date()));
-            newAppointment.setCreatedBy(loggedUsername);
-            newAppointment.setLastUpdate(utcFormat.format(new Date()));
-            newAppointment.setLastUpdatedBy(loggedUsername);
+            selectedAppointment.setLastUpdate(utcFormat.format(new Date()));
+            selectedAppointment.setLastUpdatedBy(loggedUsername);
 
             // Checks to make sure that the startTime is not in the past
-            if(newAppointment.startTimeInFuture()) {
+            if(selectedAppointment.startTimeInFuture()) {
                 // Checks to make sure that the endTime is after the startTime
-                if(newAppointment.endTimeAfterStartTime()) {
+                if(selectedAppointment.endTimeAfterStartTime()) {
                     // Checks to make sure that the startTime and endTime are within business hours
-                    if (newAppointment.isWithinBusinessHours()) {
+                    if (selectedAppointment.isWithinBusinessHours()) {
                         // Add Appointment to DB
                         try {
                             // DB Query for adding Appointment
-                            String update = "INSERT INTO appointments VALUES (" + newAppointment.getAppointmentID() + ", '"
-                                    + newAppointment.getTitle() + "', '"
-                                    + newAppointment.getDescription() + "', '"
-                                    + newAppointment.getLocation() + "', '"
-                                    + newAppointment.getType() + "', '"
-                                    + newAppointment.getUtcStartTimestamp() + "', '"
-                                    + newAppointment.getUtcEndTimestamp() + "', '"
-                                    + newAppointment.getCreateDate() + "', '"
-                                    + newAppointment.getCreatedBy() + "', '"
-                                    + newAppointment.getLastUpdate() + "', '"
-                                    + newAppointment.getLastUpdatedBy() + "', '"
-                                    + newAppointment.getCustomerID() + "', '"
-                                    + newAppointment.getUserID() + "', "
-                                    + newAppointment.getContactID() + ")";
+                            String update = "UPDATE appointments SET " +
+                                    "Title = '" + selectedAppointment.getTitle() + "', " +
+                                    "Description = '" + selectedAppointment.getDescription() + "', " +
+                                    "Location = '" + selectedAppointment.getLocation() + "', " +
+                                    "Type = '" + selectedAppointment.getType() + "', " +
+                                    "Start = '" + selectedAppointment.getUtcStartTimestamp() + "', " +
+                                    "End = '" + selectedAppointment.getUtcEndTimestamp() + "', " +
+                                    "Last_Update = '" + selectedAppointment.getLastUpdate() + "', " +
+                                    "Last_Updated_By = '" + selectedAppointment.getLastUpdatedBy() + "', " +
+                                    "Customer_ID = '" + selectedAppointment.getCustomerID() + "', " +
+                                    "User_ID = '" + loggedUserID + "', " +
+                                    "Contact_ID = '" + selectedAppointment.getContactID() + "'"
+                                    + "WHERE APPOINTMENT_ID = " + selectedAppointment.getAppointmentID();
                             Statement st = JDBC.connection.createStatement();
                             st.executeUpdate(update);
 
                             returnToMainController();
                         }
                         catch(SQLException e) {
-                            System.out.println("Error adding Appointment to database.");
+                            System.out.println("Error updating Appointment in database.");
                         }
                     }
                     else {
@@ -567,7 +586,6 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-    // DONE
     // Closes the current window
     private void closeCurrentWindow() {
         Stage currentStage = (Stage)addApptAnchorPane.getScene().getWindow();

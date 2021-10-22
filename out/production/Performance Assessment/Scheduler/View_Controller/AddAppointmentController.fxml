@@ -93,7 +93,7 @@
          </padding>
       </Label>
       <MenuButton fx:id="customerMenuButton" layoutX="458.0" layoutY="254.0" mnemonicParsing="false" text="Select..." />
-      <Button fx:id="cancelButton" layoutX="634.0" layoutY="364.0" mnemonicParsing="false" text="Cancel" />
+      <Button fx:id="cancelButton" layoutX="634.0" layoutY="364.0" mnemonicParsing="false" onAction="#returnToMainController" text="Cancel" />
       <Button fx:id="saveButton" layoutX="586.0" layoutY="364.0" mnemonicParsing="false" onAction="#addAppointment" text="Save" />
    </children>
 </AnchorPane>

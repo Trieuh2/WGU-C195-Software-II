@@ -79,7 +79,7 @@
       </VBox>
       <HBox layoutX="1357.0" layoutY="541.0">
          <children>
-            <Button fx:id="editAppointmentButton" mnemonicParsing="false" text="Edit">
+            <Button fx:id="updateAppointmentButton" mnemonicParsing="false" onAction="#updateAppointment" text="Update">
                <HBox.margin>
                   <Insets right="5.0" />
                </HBox.margin>

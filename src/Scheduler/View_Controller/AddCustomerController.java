@@ -262,7 +262,7 @@ public class AddCustomerController implements Initializable {
         try {
             // Load the FXML file.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
-            MainController controller = new MainController(loggedUserID);
+            MainController controller = new MainController(loggedUserID, false);
             loader.setController(controller);
             Parent root = loader.load();
 

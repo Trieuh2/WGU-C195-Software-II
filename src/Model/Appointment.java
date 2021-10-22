@@ -22,6 +22,7 @@ public class Appointment {
     private String lastUpdate;
     private String lastUpdatedBy;
     private int customerID;
+    private String customerName;
     private int userID;
     private int contactID;
     private String contactName;
@@ -51,19 +52,23 @@ public class Appointment {
         this.description = description;
         this.location = location;
         this.type = type;
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-        this.utcZonedDateTimeStart = ZonedDateTime.parse(utcStartTimestamp + " " + ZoneId.of("UTC"), formatter);
-        this.localZonedDateTimeStart = utcZonedDateTimeStart.withZoneSameInstant(ZoneId.systemDefault());
-        setLocalStartTimestamp();
-        this.utcZonedDateTimeEnd = ZonedDateTime.parse(utcEndTimestamp + " " + ZoneId.of("UTC"), formatter);
-        this.localZonedDateTimeEnd = utcZonedDateTimeEnd.withZoneSameInstant(ZoneId.systemDefault());
-        setLocalEndTimestamp();
-
         this.customerID = customerID;
+        setCustomerName(customerID);
         this.userID = userID;
         this.contactID = contactID;
         setContactName(contactID);
+
+        // Parse the timestamp value from the DB into ZonedDateTime objects in UTC and Local Time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+        this.utcZonedDateTimeStart = ZonedDateTime.parse(utcStartTimestamp + " " + ZoneId.of("UTC"), formatter);
+        setUtcStartTimestamp();
+        this.localZonedDateTimeStart = utcZonedDateTimeStart.withZoneSameInstant(ZoneId.systemDefault());
+        setLocalStartTimestamp();
+
+        this.utcZonedDateTimeEnd = ZonedDateTime.parse(utcEndTimestamp + " " + ZoneId.of("UTC"), formatter);
+        setUtcEndTimestamp();
+        this.localZonedDateTimeEnd = utcZonedDateTimeEnd.withZoneSameInstant(ZoneId.systemDefault());
+        setLocalEndTimestamp();
     }
 
     // Accessor methods
@@ -88,7 +93,7 @@ public class Appointment {
     }
 
     public ZonedDateTime getUtcZonedDateTimeStart() {
-        return this.utcZonedDateTimeStart;
+        return utcZonedDateTimeStart;
     }
 
     public String getUtcStartTimestamp() {
@@ -96,20 +101,28 @@ public class Appointment {
         return this.utcStartTimestamp;
     }
 
+    public ZonedDateTime getLocalZonedDateTimeStart() {
+        return localZonedDateTimeStart;
+    }
+
     public String getLocalStartTimestamp() {
-        return this.localStartTimestamp;
+        return localStartTimestamp;
     }
 
     public ZonedDateTime getUtcZonedDateTimeEnd() {
-        return this.utcZonedDateTimeEnd;
+        return utcZonedDateTimeEnd;
     }
 
     public String getUtcEndTimestamp() {
-        return this.utcEndTimestamp;
+        return utcEndTimestamp;
+    }
+
+    public ZonedDateTime getLocalZonedDateTimeEnd() {
+        return localZonedDateTimeEnd;
     }
 
     public String getLocalEndTimestamp() {
-        return this.localEndTimestamp;
+        return localEndTimestamp;
     }
 
     public String getCreateDate() {
@@ -130,6 +143,10 @@ public class Appointment {
 
     public int getCustomerID() {
         return customerID;
+    }
+
+    public String getCustomerName() {
+        return customerName;
     }
 
     public int getUserID() {
@@ -217,6 +234,21 @@ public class Appointment {
 
     public void setCustomerID(int customerID) {
         this.customerID = customerID;
+    }
+
+    public void setCustomerName(int customerID) {
+        try {
+            String query = "SELECT Customer_Name FROM customers WHERE Customer_ID = " + customerID;
+            Statement st = JDBC.connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while(rs.next()) {
+                this.customerName = rs.getString(1);
+            }
+        }
+        catch(SQLException e) {
+            System.out.println("Error retrieving Customer information from the database.");
+        }
     }
 
     public void setUserID(int userID) {
