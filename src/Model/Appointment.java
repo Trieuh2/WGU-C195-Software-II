@@ -1,13 +1,16 @@
 package Model;
 
+import helper.JDBC;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Appointment {
-    // Required fields to add an Appointment record in the DB
-
     // Time values are stored in UTC
     private int appointmentID;
     private String title;
@@ -21,22 +24,50 @@ public class Appointment {
     private int customerID;
     private int userID;
     private int contactID;
+    private String contactName;
 
     // Start Time variables
     private ZonedDateTime localZonedDateTimeStart;
+    private String localStartTimestamp;
     private ZonedDateTime utcZonedDateTimeStart;
+    private String utcStartTimestamp;
 
     // End Time variables
     private ZonedDateTime localZonedDateTimeEnd;
+    private String localEndTimestamp;
     private ZonedDateTime utcZonedDateTimeEnd;
+    private String utcEndTimestamp;
 
-    // Default Constructor
+    // Constructors
     public Appointment() {
 
     }
 
+    public Appointment(int appointmentID, String title, String description, String location,
+                       String type, String utcStartTimestamp, String utcEndTimestamp, int customerID, int userID, int contactID) {
+        // Set object variables
+        this.appointmentID = appointmentID;
+        this.title = title;
+        this.description = description;
+        this.location = location;
+        this.type = type;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+        this.utcZonedDateTimeStart = ZonedDateTime.parse(utcStartTimestamp + " " + ZoneId.of("UTC"), formatter);
+        this.localZonedDateTimeStart = utcZonedDateTimeStart.withZoneSameInstant(ZoneId.systemDefault());
+        setLocalStartTimestamp();
+        this.utcZonedDateTimeEnd = ZonedDateTime.parse(utcEndTimestamp + " " + ZoneId.of("UTC"), formatter);
+        this.localZonedDateTimeEnd = utcZonedDateTimeEnd.withZoneSameInstant(ZoneId.systemDefault());
+        setLocalEndTimestamp();
+
+        this.customerID = customerID;
+        this.userID = userID;
+        this.contactID = contactID;
+        setContactName(contactID);
+    }
+
     // Accessor methods
-    public int getID() {
+    public int getAppointmentID() {
         return appointmentID;
     }
 
@@ -56,18 +87,29 @@ public class Appointment {
         return type;
     }
 
-    public String getStartTimestamp() {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String utcStartTimestamp = dateTimeFormatter.format(utcZonedDateTimeStart);
-
-        return utcStartTimestamp;
+    public ZonedDateTime getUtcZonedDateTimeStart() {
+        return this.utcZonedDateTimeStart;
     }
 
-    public String getEndTimestamp() {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String utcEndTimestamp = dateTimeFormatter.format(utcZonedDateTimeEnd);
+    public String getUtcStartTimestamp() {
 
-        return utcEndTimestamp;
+        return this.utcStartTimestamp;
+    }
+
+    public String getLocalStartTimestamp() {
+        return this.localStartTimestamp;
+    }
+
+    public ZonedDateTime getUtcZonedDateTimeEnd() {
+        return this.utcZonedDateTimeEnd;
+    }
+
+    public String getUtcEndTimestamp() {
+        return this.utcEndTimestamp;
+    }
+
+    public String getLocalEndTimestamp() {
+        return this.localEndTimestamp;
     }
 
     public String getCreateDate() {
@@ -98,6 +140,10 @@ public class Appointment {
         return contactID;
     }
 
+    public String getContactName() {
+        return contactName;
+    }
+
     // Mutator methods
     public void setID(int appointmentID) {
         this.appointmentID = appointmentID;
@@ -123,12 +169,34 @@ public class Appointment {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
         this.localZonedDateTimeStart = localDateTime.atZone(ZoneId.systemDefault());
         this.utcZonedDateTimeStart = this.localZonedDateTimeStart.withZoneSameInstant(ZoneId.of("UTC"));
+        setUtcStartTimestamp();
+    }
+
+    public void setUtcStartTimestamp() {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        this.utcStartTimestamp = dateTimeFormatter.format(utcZonedDateTimeStart);
+    }
+
+    public void setLocalStartTimestamp() {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a");
+        this.localStartTimestamp = dateTimeFormatter.format(localZonedDateTimeStart);
     }
 
     public void setUtcZonedDateTimeEnd(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
         this.localZonedDateTimeEnd = localDateTime.atZone(ZoneId.systemDefault());
         this.utcZonedDateTimeEnd = localZonedDateTimeEnd.withZoneSameInstant(ZoneId.of("UTC"));
+        setUtcEndTimestamp();
+    }
+
+    public void setLocalEndTimestamp() {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a");
+        this.localEndTimestamp = dateTimeFormatter.format(localZonedDateTimeEnd);
+    }
+
+    public void setUtcEndTimestamp() {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        this.utcEndTimestamp = dateTimeFormatter.format(utcZonedDateTimeEnd);
     }
 
     public void setCreateDate(String createDate) {
@@ -157,6 +225,21 @@ public class Appointment {
 
     public void setContactID(int contactID) {
         this.contactID = contactID;
+    }
+
+    public void setContactName(int contactID) {
+        try {
+            String query = "SELECT Contact_Name FROM contacts WHERE Contact_ID = " + contactID;
+            Statement st = JDBC.connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while(rs.next()) {
+                this.contactName = rs.getString(1);
+            }
+        }
+        catch(SQLException e) {
+            System.out.println("Error retrieving Contact information from the database.");
+        }
     }
 
     // Checks if the start time of the Appointment is taking place in the future
@@ -188,7 +271,6 @@ public class Appointment {
     // 8am - 10pm EST
     // 5am - 7pm PST
     // 12pm - 2am (next day) UTC
-    // TODO:
     public boolean isWithinBusinessHours() {
         boolean validHours = false;
 

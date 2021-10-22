@@ -28,7 +28,7 @@ public class ViewCustomerController implements Initializable {
     // TableView
     @FXML TableView<Customer> customerTableView;
 
-    // Cell Columns
+    // TableColumns
     @FXML TableColumn idColumn;
     @FXML TableColumn nameColumn;
     @FXML TableColumn addressColumn;
@@ -44,12 +44,12 @@ public class ViewCustomerController implements Initializable {
     private Customer selectedCustomer;
 
     // Variable for tracking the user logged in
-    private int loggedUserID;
+    private final int loggedUserID;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setCellFactoryValues();
-        loadTable();
+        loadCustomers();
 
         // Edit and Delete buttons are only visible when a change is made to a customer record
         editButton.setVisible(false);
@@ -82,7 +82,7 @@ public class ViewCustomerController implements Initializable {
 
     // DONE
     // Fetches all the customers from the DB and loads it into the TableView
-    private void loadTable() {
+    private void loadCustomers() {
         // Clear the table and selection before loading/reloading customers into the table
         customerTableView.getItems().clear();
         customerTableView.getSelectionModel().clearSelection();
@@ -127,7 +127,7 @@ public class ViewCustomerController implements Initializable {
 
                 // Re-load the table after deleting the customer from the DB and hide the edit button since there is no
                 // customer selected
-                loadTable();
+                loadCustomers();
                 editButton.setVisible(false);
 
                 // Display a custom message to confirm successful deletion

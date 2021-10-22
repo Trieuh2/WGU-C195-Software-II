@@ -26,7 +26,8 @@ public class Customer {
 
     }
 
-    // Complete constructor
+
+    // Constructor used for viewing the customers
     public Customer(int ID, String name, String address, String postalCode, String phoneNumber, int divisionID) {
         this.ID = ID;
         this.name = name;

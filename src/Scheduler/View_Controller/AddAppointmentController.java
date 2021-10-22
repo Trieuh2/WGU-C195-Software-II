@@ -75,7 +75,7 @@ public class AddAppointmentController implements Initializable {
     private boolean contactSelected;
 
     // Variable for tracking the user logged in
-    private int loggedUserID;
+    private final int loggedUserID;
     private String loggedUsername;
 
     @Override
@@ -441,35 +441,6 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-    // Closes current scene and switches back to the main controller
-    @FXML
-    private void returnToMainController() {
-        try {
-            // Load the FXML file.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
-            MainController controller = new MainController(loggedUserID);
-            loader.setController(controller);
-            Parent root = loader.load();
-
-            // Close the current window and build the MainController scene to display the appointment calendar
-            closeCurrentWindow();
-            Scene scene = new Scene(root);
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.show();
-        }
-        catch (IOException e) {
-            System.out.println("Error switching back to Main Controller.");
-        }
-    }
-
-    // DONE
-    // Closes the current window
-    private void closeCurrentWindow() {
-        Stage currentStage = (Stage)addApptAnchorPane.getScene().getWindow();
-        currentStage.close();
-    }
-
     // Adds the appointment to the Database
     @FXML
     private void addAppointment() {
@@ -500,13 +471,13 @@ public class AddAppointmentController implements Initializable {
                         // Add Appointment to DB
                         try {
                             // DB Query for adding Appointment
-                            String update = "INSERT INTO appointments VALUES (" + newAppointment.getID() + ", '"
+                            String update = "INSERT INTO appointments VALUES (" + newAppointment.getAppointmentID() + ", '"
                                     + newAppointment.getTitle() + "', '"
                                     + newAppointment.getDescription() + "', '"
                                     + newAppointment.getLocation() + "', '"
                                     + newAppointment.getType() + "', '"
-                                    + newAppointment.getStartTimestamp() + "', '"
-                                    + newAppointment.getEndTimestamp() + "', '"
+                                    + newAppointment.getUtcStartTimestamp() + "', '"
+                                    + newAppointment.getUtcEndTimestamp() + "', '"
                                     + newAppointment.getCreateDate() + "', '"
                                     + newAppointment.getCreatedBy() + "', '"
                                     + newAppointment.getLastUpdate() + "', '"
@@ -516,6 +487,8 @@ public class AddAppointmentController implements Initializable {
                                     + newAppointment.getContactID() + ")";
                             Statement st = JDBC.connection.createStatement();
                             st.executeUpdate(update);
+
+                            returnToMainController();
                         }
                         catch(SQLException e) {
                             System.out.println("Error adding Appointment to database.");
@@ -563,5 +536,35 @@ public class AddAppointmentController implements Initializable {
         else {
             return false;
         }
+    }
+
+
+    // Closes current scene and switches back to the main controller
+    @FXML
+    private void returnToMainController() {
+        try {
+            // Load the FXML file.
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
+            MainController controller = new MainController(loggedUserID);
+            loader.setController(controller);
+            Parent root = loader.load();
+
+            // Close the current window and build the MainController scene to display the appointment calendar
+            closeCurrentWindow();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.show();
+        }
+        catch (IOException e) {
+            System.out.println("Error switching back to Main Controller.");
+        }
+    }
+
+    // DONE
+    // Closes the current window
+    private void closeCurrentWindow() {
+        Stage currentStage = (Stage)addApptAnchorPane.getScene().getWindow();
+        currentStage.close();
     }
 }
