@@ -222,6 +222,8 @@ public class AddCustomerController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Error");
             alert.setContentText("All fields must have a value.");
+            Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+            stage.setAlwaysOnTop(true);
             alert.show();
         }
     }

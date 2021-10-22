@@ -326,4 +326,41 @@ public class Appointment {
 
         return validHours;
     }
+
+    // Checks to see if the start time and end time is overlapping with an appointment associated with the customer selected
+    public boolean overlapsCustomer() {
+        boolean overlap = false;
+
+        try {
+            // Query all of the Appointments associated with the Customer selected
+            String query = "SELECT Start, End FROM appointments WHERE Customer_ID = " + this.customerID;
+            Statement st = JDBC.connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            // Check to see if the selected appointment time is conflicting with existing appointments with the Customer
+            while(rs.next()) {
+                // Retrieve the timestamps from the DB
+                String utcCustApptStartTimestamp = rs.getString("Start");
+                String utcCustApptEndTimestamp = rs.getString("End");
+
+                // Parse the timestamp value from the DB into ZonedDateTime objects in UTC and Local Time
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+                ZonedDateTime utcCustApptStart = ZonedDateTime.parse(utcCustApptStartTimestamp + " " + ZoneId.of("UTC"), formatter);
+                ZonedDateTime utcCustApptEnd = ZonedDateTime.parse(utcCustApptEndTimestamp + " " + ZoneId.of("UTC"), formatter);
+
+                // Only perform the comparison if the Appointment date is the same
+                if(utcZonedDateTimeStart.getDayOfYear() == utcCustApptStart.getDayOfYear()) {
+                    // Compare the selected Appointment times to see if they overlap {
+                    if(utcZonedDateTimeStart.isBefore(utcCustApptEnd)) {
+                        overlap = true;
+                    }
+                }
+            }
+        }
+        catch(SQLException e) {
+            System.out.println("Error retrieving Appointment information from the database.");
+        }
+
+        return overlap;
+    }
 }

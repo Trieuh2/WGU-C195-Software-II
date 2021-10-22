@@ -475,35 +475,47 @@ public class UpdateAppointmentController implements Initializable {
                 if(selectedAppointment.endTimeAfterStartTime()) {
                     // Checks to make sure that the startTime and endTime are within business hours
                     if (selectedAppointment.isWithinBusinessHours()) {
-                        // Add Appointment to DB
-                        try {
-                            // DB Query for adding Appointment
-                            String update = "UPDATE appointments SET " +
-                                    "Title = '" + selectedAppointment.getTitle() + "', " +
-                                    "Description = '" + selectedAppointment.getDescription() + "', " +
-                                    "Location = '" + selectedAppointment.getLocation() + "', " +
-                                    "Type = '" + selectedAppointment.getType() + "', " +
-                                    "Start = '" + selectedAppointment.getUtcStartTimestamp() + "', " +
-                                    "End = '" + selectedAppointment.getUtcEndTimestamp() + "', " +
-                                    "Last_Update = '" + selectedAppointment.getLastUpdate() + "', " +
-                                    "Last_Updated_By = '" + selectedAppointment.getLastUpdatedBy() + "', " +
-                                    "Customer_ID = '" + selectedAppointment.getCustomerID() + "', " +
-                                    "User_ID = '" + loggedUserID + "', " +
-                                    "Contact_ID = '" + selectedAppointment.getContactID() + "'"
-                                    + "WHERE APPOINTMENT_ID = " + selectedAppointment.getAppointmentID();
-                            Statement st = JDBC.connection.createStatement();
-                            st.executeUpdate(update);
+                        if(!selectedAppointment.overlapsCustomer()) {
+                            // Add Appointment to DB
+                            try {
+                                // DB Query for adding Appointment
+                                String update = "UPDATE appointments SET " +
+                                        "Title = '" + selectedAppointment.getTitle() + "', " +
+                                        "Description = '" + selectedAppointment.getDescription() + "', " +
+                                        "Location = '" + selectedAppointment.getLocation() + "', " +
+                                        "Type = '" + selectedAppointment.getType() + "', " +
+                                        "Start = '" + selectedAppointment.getUtcStartTimestamp() + "', " +
+                                        "End = '" + selectedAppointment.getUtcEndTimestamp() + "', " +
+                                        "Last_Update = '" + selectedAppointment.getLastUpdate() + "', " +
+                                        "Last_Updated_By = '" + selectedAppointment.getLastUpdatedBy() + "', " +
+                                        "Customer_ID = '" + selectedAppointment.getCustomerID() + "', " +
+                                        "User_ID = '" + loggedUserID + "', " +
+                                        "Contact_ID = '" + selectedAppointment.getContactID() + "'"
+                                        + "WHERE APPOINTMENT_ID = " + selectedAppointment.getAppointmentID();
+                                Statement st = JDBC.connection.createStatement();
+                                st.executeUpdate(update);
 
-                            returnToMainController();
+                                returnToMainController();
+                            }
+                            catch(SQLException e) {
+                                System.out.println("Error updating Appointment in database.");
+                            }
                         }
-                        catch(SQLException e) {
-                            System.out.println("Error updating Appointment in database.");
+                        else {
+                            Alert alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setTitle("Error");
+                            alert.setContentText("The requested appointment time are conflicting with the customer's appointment schedule.\n\nPlease provide a new time.");
+                            Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                            stage.setAlwaysOnTop(true);
+                            alert.show();
                         }
                     }
                     else {
                         Alert alert = new Alert(Alert.AlertType.WARNING);
                         alert.setTitle("Error");
                         alert.setContentText("The appointment start and end times must occur within the business hours of 8AM - 10PM EST within the same day.");
+                        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                        stage.setAlwaysOnTop(true);
                         alert.show();
                     }
                 }
@@ -511,6 +523,8 @@ public class UpdateAppointmentController implements Initializable {
                     Alert alert = new Alert(Alert.AlertType.WARNING);
                     alert.setTitle("Error");
                     alert.setContentText("The end time of the appointment must occur after the start time.");
+                    Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                    stage.setAlwaysOnTop(true);
                     alert.show();
                 }
             }
@@ -518,6 +532,8 @@ public class UpdateAppointmentController implements Initializable {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Error");
                 alert.setContentText("The start time of the appointment must occur in the future.");
+                Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                stage.setAlwaysOnTop(true);
                 alert.show();
             }
         }
@@ -526,6 +542,8 @@ public class UpdateAppointmentController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Error");
             alert.setContentText("All fields must have a value.");
+            Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+            stage.setAlwaysOnTop(true);
             alert.show();
         }
     }

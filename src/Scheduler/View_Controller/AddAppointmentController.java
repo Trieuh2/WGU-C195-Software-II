@@ -455,36 +455,48 @@ public class AddAppointmentController implements Initializable {
                 if(newAppointment.endTimeAfterStartTime()) {
                     // Checks to make sure that the startTime and endTime are within business hours
                     if (newAppointment.isWithinBusinessHours()) {
-                        // Add Appointment to DB
-                        try {
-                            // DB Query for adding Appointment
-                            String update = "INSERT INTO appointments VALUES (" + newAppointment.getAppointmentID() + ", '"
-                                    + newAppointment.getTitle() + "', '"
-                                    + newAppointment.getDescription() + "', '"
-                                    + newAppointment.getLocation() + "', '"
-                                    + newAppointment.getType() + "', '"
-                                    + newAppointment.getUtcStartTimestamp() + "', '"
-                                    + newAppointment.getUtcEndTimestamp() + "', '"
-                                    + newAppointment.getCreateDate() + "', '"
-                                    + newAppointment.getCreatedBy() + "', '"
-                                    + newAppointment.getLastUpdate() + "', '"
-                                    + newAppointment.getLastUpdatedBy() + "', '"
-                                    + newAppointment.getCustomerID() + "', '"
-                                    + newAppointment.getUserID() + "', "
-                                    + newAppointment.getContactID() + ")";
-                            Statement st = JDBC.connection.createStatement();
-                            st.executeUpdate(update);
+                        if(!newAppointment.overlapsCustomer()) {
+                            // Add Appointment to DB
+                            try {
+                                // DB Query for adding Appointment
+                                String update = "INSERT INTO appointments VALUES (" + newAppointment.getAppointmentID() + ", '"
+                                        + newAppointment.getTitle() + "', '"
+                                        + newAppointment.getDescription() + "', '"
+                                        + newAppointment.getLocation() + "', '"
+                                        + newAppointment.getType() + "', '"
+                                        + newAppointment.getUtcStartTimestamp() + "', '"
+                                        + newAppointment.getUtcEndTimestamp() + "', '"
+                                        + newAppointment.getCreateDate() + "', '"
+                                        + newAppointment.getCreatedBy() + "', '"
+                                        + newAppointment.getLastUpdate() + "', '"
+                                        + newAppointment.getLastUpdatedBy() + "', '"
+                                        + newAppointment.getCustomerID() + "', '"
+                                        + newAppointment.getUserID() + "', "
+                                        + newAppointment.getContactID() + ")";
+                                Statement st = JDBC.connection.createStatement();
+                                st.executeUpdate(update);
 
-                            returnToMainController();
+                                returnToMainController();
+                            }
+                            catch(SQLException e) {
+                                System.out.println("Error adding Appointment to database.");
+                            }
                         }
-                        catch(SQLException e) {
-                            System.out.println("Error adding Appointment to database.");
+                        else {
+                            Alert alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setTitle("Error");
+                            alert.setContentText("The requested appointment time are conflicting with the customer's appointment schedule.\n\nPlease provide a new time.");
+                            Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                            stage.setAlwaysOnTop(true);
+                            alert.show();
                         }
                     }
                     else {
                         Alert alert = new Alert(Alert.AlertType.WARNING);
                         alert.setTitle("Error");
                         alert.setContentText("The appointment start and end times must occur within the business hours of 8AM - 10PM EST within the same day.");
+                        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                        stage.setAlwaysOnTop(true);
                         alert.show();
                     }
                 }
@@ -492,6 +504,8 @@ public class AddAppointmentController implements Initializable {
                     Alert alert = new Alert(Alert.AlertType.WARNING);
                     alert.setTitle("Error");
                     alert.setContentText("The end time of the appointment must occur after the start time.");
+                    Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                    stage.setAlwaysOnTop(true);
                     alert.show();
                 }
             }
@@ -499,6 +513,8 @@ public class AddAppointmentController implements Initializable {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Error");
                 alert.setContentText("The start time of the appointment must occur in the future.");
+                Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                stage.setAlwaysOnTop(true);
                 alert.show();
             }
         }
@@ -507,6 +523,8 @@ public class AddAppointmentController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Error");
             alert.setContentText("All fields must have a value.");
+            Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+            stage.setAlwaysOnTop(true);
             alert.show();
         }
     }

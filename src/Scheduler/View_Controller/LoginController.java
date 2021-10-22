@@ -112,7 +112,7 @@ public class LoginController implements Initializable {
     private void switchToMainController() throws IOException {
         // Load the FXML file.
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
-        MainController controller = new MainController(loggedUserID, false);
+        MainController controller = new MainController(loggedUserID, true);
         loader.setController(controller);
         Parent root = loader.load();
 

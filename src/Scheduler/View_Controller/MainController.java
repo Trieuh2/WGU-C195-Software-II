@@ -69,14 +69,15 @@ public class MainController implements Initializable {
         setCellFactoryValues();
         initializeTableView();
         initializeRadioButtons();
+        welcomeAlertDialog();
 
         // Load the Appointments in the Monthly view by default
         monthlyWeeklyToggleGroup.selectToggle(monthlyRadioButton);
     }
 
-    public MainController(int loggedUserID, boolean login) {
+    public MainController(int loggedUserID, boolean accessedViaLogin) {
         this.loggedUserID = loggedUserID;
-        this.accessedViaLogin = login;
+        this.accessedViaLogin = accessedViaLogin;
     }
 
     private void loadMonthYearLabel() {
@@ -126,7 +127,7 @@ public class MainController implements Initializable {
 
         // Load the appointments
         try{
-            String query = "SELECT * FROM appointments";
+            String query = "SELECT * FROM appointments ORDER BY Start ASC";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
@@ -276,66 +277,70 @@ public class MainController implements Initializable {
     // Provides an alert when there is an appointment within 15 minutes of the user's log-in
     // If there are no appointments within 15 minutes of logging in, a message will indicate there are no upcoming appointments.
     private void welcomeAlertDialog() {
-        LocalDateTime now = LocalDateTime.now();
-        ZonedDateTime nowZonedDateTime = now.atZone(ZoneId.systemDefault());
-        ZonedDateTime fifteenMinsLaterFromNow = nowZonedDateTime.plusMinutes(15);
-        boolean alertGenerated = false;
+        if(accessedViaLogin) {
+            LocalDateTime now = LocalDateTime.now();
+            ZonedDateTime nowZonedDateTime = now.atZone(ZoneId.systemDefault());
+            ZonedDateTime fifteenMinsLaterFromNow = nowZonedDateTime.plusMinutes(15);
+            boolean upcomingAppointment = false;
 
-        // Go through all appointments and generate an alert if there is an upcoming Appointment within 15 minutes of the user logging in.
-        try{
-            String query = "SELECT * FROM appointments";
-            Statement st = JDBC.connection.createStatement();
-            ResultSet rs = st.executeQuery(query);
+            // Go through all appointments and generate an alert if there is an upcoming Appointment within 15 minutes of the user logging in.
+            try{
+                String query = "SELECT * FROM appointments";
+                Statement st = JDBC.connection.createStatement();
+                ResultSet rs = st.executeQuery(query);
 
-            while(rs.next()) {
-                // Appointment details
-                int appointmentID = rs.getInt("Appointment_ID");
-                String title = rs.getString("Title");
-                String description = rs.getString("Description");
-                String location = rs.getString("Location");
-                String type = rs.getString("Type");
-                String utcStartTimestamp = rs.getString("Start");
-                String utcEndTimestamp = rs.getString("End");
-                int customerID = rs.getInt("Customer_ID");
-                int userID = rs.getInt("User_ID");
-                int contactID = rs.getInt("Contact_ID");
+                while(rs.next()) {
+                    // Appointment details
+                    int appointmentID = rs.getInt("Appointment_ID");
+                    String title = rs.getString("Title");
+                    String description = rs.getString("Description");
+                    String location = rs.getString("Location");
+                    String type = rs.getString("Type");
+                    String utcStartTimestamp = rs.getString("Start");
+                    String utcEndTimestamp = rs.getString("End");
+                    int customerID = rs.getInt("Customer_ID");
+                    int userID = rs.getInt("User_ID");
+                    int contactID = rs.getInt("Contact_ID");
 
-                Appointment tempAppointment = new Appointment(appointmentID, title, description, location,
-                        type, utcStartTimestamp, utcEndTimestamp, customerID, userID, contactID);
+                    Appointment tempAppointment = new Appointment(appointmentID, title, description, location,
+                            type, utcStartTimestamp, utcEndTimestamp, customerID, userID, contactID);
 
-                ZonedDateTime utcApptStart = tempAppointment.getUtcZonedDateTimeStart();
+                    ZonedDateTime utcApptStart = tempAppointment.getUtcZonedDateTimeStart();
 
-                // Generate an alert if there is an upcoming appointment within 15 minutes from logging in
-                if( (utcApptStart.equals(nowZonedDateTime)) ||
+                    // Generate an alert if there is an upcoming appointment within 15 minutes from logging in
+                    if( (utcApptStart.equals(nowZonedDateTime)) ||
                             (utcApptStart.isAfter(nowZonedDateTime) && (utcApptStart.isBefore(fifteenMinsLaterFromNow))) ||
                             (utcApptStart.isEqual(fifteenMinsLaterFromNow))) {
-                    // Convert the appointment time from UTC to local time and parse the information
-                    ZonedDateTime localApptStart = utcApptStart.withZoneSameInstant(ZoneId.systemDefault());
-                    String date = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(localApptStart);
-                    String time = DateTimeFormatter.ofPattern("h:mm a").format(localApptStart);
+                        // Convert the appointment time from UTC to local time and parse the information
+                        ZonedDateTime localApptStart = utcApptStart.withZoneSameInstant(ZoneId.systemDefault());
+                        String date = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(localApptStart);
+                        String time = DateTimeFormatter.ofPattern("h:mm a").format(localApptStart);
 
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Upcoming Appointment");
-                    alert.setContentText("(Appointment ID: " + tempAppointment.getAppointmentID() + ") There is an upcoming appointment on " + date + " at " + time);
+                        // Display the alert
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Upcoming Appointment");
+                        alert.setContentText("(Appointment ID: " + tempAppointment.getAppointmentID() + ") There is an upcoming appointment on " + date + " at " + time + ".");
+                        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                        stage.setAlwaysOnTop(true);
+                        alert.show();
 
-                    // Display the alert
-                    alert.show();
-
-                    // Flag that the alert was generated
-                    alertGenerated = true;
+                        // Flag that the alert was generated
+                        upcomingAppointment = true;
+                    }
                 }
             }
-        }
-        catch(SQLException e) {
-            System.out.println("Error retrieving Appointment information from the database.");
-        }
-
-        if(!alertGenerated) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("No Upcoming Appointments");
-            alert.setContentText("There are no upcoming appointments within 15 minutes from now.");
-
-            alert.show();
+            catch(SQLException e) {
+                System.out.println("Error retrieving Appointment information from the database.");
+            }
+            //
+            if(!upcomingAppointment) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("No Upcoming Appointments");
+                alert.setContentText("There are no upcoming appointments within 15 minutes from now.");
+                Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                stage.setAlwaysOnTop(true);
+                alert.show();
+            }
         }
     }
 
@@ -372,7 +377,8 @@ public class MainController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Appointment Canceled");
             alert.setContentText("(Appointment ID: " + selectedAppointment.getAppointmentID() + ") The " + selectedAppointment.getType() + " appointment has been canceled successfully.");
-
+            Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+            stage.setAlwaysOnTop(true);
             alert.show();
         }
         catch(SQLException e) {
