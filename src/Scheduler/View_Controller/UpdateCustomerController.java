@@ -179,16 +179,11 @@ public class UpdateCustomerController implements Initializable {
         // Ensure that all fields on the form have been provided a value
         if(allFieldsFilled()) {
             // Parse TextField values and store them into variables for updating the Customer
-            parseTextFields();
+            parseFormFields();
+            setAuditTimestamps();
 
             // Update the customer in the DB
             try {
-                SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-                updatedCustomer.setLastUpdate(utcFormat.format(new Date()));
-                updatedCustomer.setLastUpdatedBy(loggedUsername);
-
                 // DB Query to update the existing customer record
                 String update = "UPDATE customers SET " +
                         "Customer_Name = " + "'" + updatedCustomer.getName() + "', " +
@@ -255,11 +250,21 @@ public class UpdateCustomerController implements Initializable {
     }
 
     // Get values from the TextFields and store them in variables
-    private void parseTextFields() {
+    private void parseFormFields() {
         updatedCustomer.setName(custNameTextField.getText());
         updatedCustomer.setAddress(custAddressTextField.getText());
         updatedCustomer.setPostalCode(custPostalCodeTextField.getText());
         updatedCustomer.setPhoneNumber(custPhoneNumberTextField.getText());
+    }
+
+    // Sets the 'updated' fields in the Customer object
+    private void setAuditTimestamps() {
+        SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        updatedCustomer.setLastUpdate(utcFormat.format(new Date()));
+        updatedCustomer.setLastUpdatedBy(loggedUsername);
+
     }
 
     // Closes the main screen and switches to the controller where the user can view all the customers

@@ -333,7 +333,7 @@ public class Appointment {
 
         try {
             // Query all of the Appointments associated with the Customer selected
-            String query = "SELECT Start, End FROM appointments WHERE Customer_ID = " + this.customerID;
+            String query = "SELECT Start, End FROM appointments WHERE Customer_ID = " + this.customerID + " AND Appointment_ID != " + this.appointmentID;
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 

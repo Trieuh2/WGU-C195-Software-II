@@ -56,14 +56,14 @@ public class AddAppointmentController implements Initializable {
     // Appointment object that is going to be added
     private Appointment newAppointment;
 
-    // Start Time fields
+    // Start Date and Time fields
     private int startMonth = -1;
     private int startDay = -1;
     private int startYear = -1;
     private int startHour = -1;
     private int startMin = -1;
 
-    // end date and time
+    // End Date and Time fields
     private int endMonth = -1;
     private int endDay = -1;
     private int endYear = -1;
@@ -85,7 +85,7 @@ public class AddAppointmentController implements Initializable {
         loggedUsername = getLoggedUsername();
 
         // Prepopulate the form options
-        preSelectMonthYear();
+        preSelectTimeOptions();
         generateAppointmentID();
         loadCustomers();
         loadContacts();
@@ -96,15 +96,25 @@ public class AddAppointmentController implements Initializable {
         this.loggedUserID = loggedUserID;
     }
 
-    private void preSelectMonthYear() {
-        // Default select the current year and month
+    // Default select the today's date for the start and end of the Appointment
+    private void preSelectTimeOptions() {
+        // Start Date values
         startYear = LocalDateTime.now().getYear();
         startYearMenuButton.setText("" + startYear);
+
+        startDay = LocalDateTime.now().getDayOfMonth();
+        startDayMenuButton.setText("" + startDay);
+
         startMonth = LocalDateTime.now().getMonth().getValue();
         startMonthMenuButton.setText("" + startMonth);
 
+        // End Date values
         endYear = LocalDateTime.now().getYear();
         endYearMenuButton.setText("" + endYear);
+
+        endDay = LocalDateTime.now().getDayOfMonth();
+        endDayMenuButton.setText("" + endDay);
+
         endMonth = LocalDateTime.now().getMonth().getValue();
         endMonthMenuButton.setText("" + endMonth);
 
@@ -138,7 +148,7 @@ public class AddAppointmentController implements Initializable {
     private void loadCustomers() {
         try {
             // DB Query
-            String query = "SELECT * FROM customers";
+            String query = "SELECT * FROM customers ORDER BY Customer_Name ASC";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
@@ -173,7 +183,7 @@ public class AddAppointmentController implements Initializable {
     private void loadContacts() {
         try {
             // DB Query
-            String query = "SELECT * FROM contacts";
+            String query = "SELECT * FROM contacts ORDER BY Contact_Name ASC";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
@@ -433,21 +443,8 @@ public class AddAppointmentController implements Initializable {
     private void addAppointment() {
         // Check to ensure that all fields on the form are filled
         if(allFieldsFilled()) {
-            // Take values from TextFields/TextAreas and assign it to the Appointment being added
-            newAppointment.setTitle(titleTextField.getText());
-            newAppointment.setDescription(descriptionTextArea.getText());
-            newAppointment.setLocation(locationTextField.getText());
-            newAppointment.setType(typeTextField.getText());
-            newAppointment.setUtcZonedDateTimeStart(startYear, startMonth, startDay, startHour, startMin, 0);
-            newAppointment.setUtcZonedDateTimeEnd(endYear, endMonth, endDay, endHour, endMin, 0);
-
-            SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-            newAppointment.setCreateDate(utcFormat.format(new Date()));
-            newAppointment.setCreatedBy(loggedUsername);
-            newAppointment.setLastUpdate(utcFormat.format(new Date()));
-            newAppointment.setLastUpdatedBy(loggedUsername);
+            parseFormFields();
+            setAuditTimestamps();
 
             // Checks to make sure that the startTime is not in the past
             if(newAppointment.startTimeInFuture()) {
@@ -543,6 +540,28 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
+
+    // Take values from the fields on the form and assign it to the Appointment object
+    private void parseFormFields() {
+        newAppointment.setTitle(titleTextField.getText());
+        newAppointment.setDescription(descriptionTextArea.getText());
+        newAppointment.setLocation(locationTextField.getText());
+        newAppointment.setType(typeTextField.getText());
+        newAppointment.setUtcZonedDateTimeStart(startYear, startMonth, startDay, startHour, startMin, 0);
+        newAppointment.setUtcZonedDateTimeEnd(endYear, endMonth, endDay, endHour, endMin, 0);
+    }
+
+    // Sets the 'created' and 'updated' fields in the Appointment object
+    private void setAuditTimestamps() {
+        SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        newAppointment.setCreateDate(utcFormat.format(new Date()));
+        newAppointment.setCreatedBy(loggedUsername);
+        newAppointment.setLastUpdate(utcFormat.format(new Date()));
+        newAppointment.setLastUpdatedBy(loggedUsername);
+    }
+
     // Retrieves the username of the currently logged-in user for record adding purposes
     private String getLoggedUsername() {
         String username = "";
@@ -585,7 +604,6 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-    // DONE
     // Closes the current window
     private void closeCurrentWindow() {
         Stage currentStage = (Stage)addApptAnchorPane.getScene().getWindow();

@@ -187,19 +187,11 @@ public class AddCustomerController implements Initializable {
     private void addCustomer() {
         // Check to ensure that no values are unassigned
         if(allFieldsFilled()) {
-            // Parse the TextField values into variables
-            parseTextFields();
+            parseFormFields();
+            setAuditTimestamps();
 
             // Add customer to DB
             try {
-                SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-                newCustomer.setCreateDate(utcFormat.format(new Date()));
-                newCustomer.setCreatedBy(loggedUsername);
-                newCustomer.setLastUpdate(utcFormat.format(new Date()));
-                newCustomer.setLastUpdatedBy(loggedUsername);
-
                 // DB Query for adding Customer
                 String update = "INSERT INTO customers VALUES (" + newCustomer.getID()
                                                                 + ", '" + newCustomer.getName() + "', '"
@@ -266,11 +258,22 @@ public class AddCustomerController implements Initializable {
     }
 
     // Get values from the TextFields and store them in variables
-    private void parseTextFields() {
+    private void parseFormFields() {
         newCustomer.setName(custNameTextField.getText());
         newCustomer.setAddress(custAddressTextField.getText());
         newCustomer.setPostalCode(custPostalCodeTextField.getText());
         newCustomer.setPhoneNumber(custPhoneNumberTextField.getText());
+    }
+
+    // Sets the 'created' and 'updated' fields in the Customer object
+    private void setAuditTimestamps() {
+        SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        newCustomer.setCreateDate(utcFormat.format(new Date()));
+        newCustomer.setCreatedBy(loggedUsername);
+        newCustomer.setLastUpdate(utcFormat.format(new Date()));
+        newCustomer.setLastUpdatedBy(loggedUsername);
     }
 
     // Closes current scene and switches back to the main controller

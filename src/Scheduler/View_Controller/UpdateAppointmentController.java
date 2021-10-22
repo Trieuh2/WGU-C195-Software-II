@@ -58,14 +58,14 @@ public class UpdateAppointmentController implements Initializable {
     // Appointment object that is going to be added
     private Appointment selectedAppointment;
 
-    // Start Time fields
+    // Start Date and Time fields
     private int startMonth = -1;
     private int startDay = -1;
     private int startYear = -1;
     private int startHour = -1;
     private int startMin = -1;
 
-    // end date and time
+    // End Date and Time fields
     private int endMonth = -1;
     private int endDay = -1;
     private int endYear = -1;
@@ -155,7 +155,7 @@ public class UpdateAppointmentController implements Initializable {
         // Populate the options
         try {
             // DB Query
-            String query = "SELECT * FROM customers";
+            String query = "SELECT * FROM customers ORDER BY Customer_Name ASC";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
@@ -195,7 +195,7 @@ public class UpdateAppointmentController implements Initializable {
         // Populate the options
         try {
             // DB Query
-            String query = "SELECT * FROM contacts";
+            String query = "SELECT * FROM contacts ORDER BY Contact_Name ASC";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
@@ -455,19 +455,8 @@ public class UpdateAppointmentController implements Initializable {
     private void updateAppointment() {
         // Check to ensure that all fields on the form are filled
         if(allFieldsFilled()) {
-            // Take values from TextFields/TextAreas and assign it to the Appointment being added
-            selectedAppointment.setTitle(titleTextField.getText());
-            selectedAppointment.setDescription(descriptionTextArea.getText());
-            selectedAppointment.setLocation(locationTextField.getText());
-            selectedAppointment.setType(typeTextField.getText());
-            selectedAppointment.setUtcZonedDateTimeStart(startYear, startMonth, startDay, startHour, startMin, 0);
-            selectedAppointment.setUtcZonedDateTimeEnd(endYear, endMonth, endDay, endHour, endMin, 0);
-
-            SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-            selectedAppointment.setLastUpdate(utcFormat.format(new Date()));
-            selectedAppointment.setLastUpdatedBy(loggedUsername);
+            parseFormFields();
+            setAuditTimestamps();
 
             // Checks to make sure that the startTime is not in the past
             if(selectedAppointment.startTimeInFuture()) {
@@ -560,6 +549,25 @@ public class UpdateAppointmentController implements Initializable {
         else {
             return false;
         }
+    }
+
+    // Take values from TextFields/TextAreas and assign it to the Appointment being added
+    private void parseFormFields() {
+        selectedAppointment.setTitle(titleTextField.getText());
+        selectedAppointment.setDescription(descriptionTextArea.getText());
+        selectedAppointment.setLocation(locationTextField.getText());
+        selectedAppointment.setType(typeTextField.getText());
+        selectedAppointment.setUtcZonedDateTimeStart(startYear, startMonth, startDay, startHour, startMin, 0);
+        selectedAppointment.setUtcZonedDateTimeEnd(endYear, endMonth, endDay, endHour, endMin, 0);
+    }
+
+    // Sets the 'created' and 'updated' fields in the Appointment object
+    private void setAuditTimestamps() {
+        SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        selectedAppointment.setLastUpdate(utcFormat.format(new Date()));
+        selectedAppointment.setLastUpdatedBy(loggedUsername);
     }
 
     // Retrieves the username of the currently logged-in user for record adding purposes
