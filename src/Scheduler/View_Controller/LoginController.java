@@ -144,8 +144,8 @@ public class LoginController implements Initializable {
         currentStage.close();
     }
 
-    // Writes the login activity and result to the login_activity.txt file
-    // [Timestamp] UserName, LOGIN_SUCCESS/LOGIN_FAIL
+    // Writes the login activity and result to the login_activity.txt file in the format below
+    // [Timestamp] UserName:''- LOGIN_SUCCESS/LOGIN_FAIL
     private void recordLoginActivity(boolean successfulLogin) {
         FileOutputStream fileOutputStream = null;
 
