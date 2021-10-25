@@ -12,12 +12,21 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -99,9 +108,11 @@ public class LoginController implements Initializable {
                 // If creds are correct, record the user that is logging in and move to main controller
                 if(rs.next()) {
                     loggedUserID = rs.getInt(1);
+                    recordLoginActivity(true);
                     switchToMainController();
                 }
                 else {
+                    recordLoginActivity(false);
                     exceptionLabel.setText(languageBundle.getString("invalidCredentialsException"));
                 }
             }
@@ -131,5 +142,60 @@ public class LoginController implements Initializable {
     private void closeCurrentWindow() {
         Stage currentStage = (Stage)loginPrimaryAnchorPane.getScene().getWindow();
         currentStage.close();
+    }
+
+    // Writes the login activity and result to the login_activity.txt file
+    // [Timestamp] UserName, LOGIN_SUCCESS/LOGIN_FAIL
+    private void recordLoginActivity(boolean successfulLogin) {
+        FileOutputStream fileOutputStream = null;
+
+        try {
+            fileOutputStream = new FileOutputStream(new File("login_activity.txt"), true);
+
+            // Pieces to the activity log
+            String timestamp;
+            String username;
+            String loginResult;
+
+            // Retrieve the current timestamp in UTC
+            LocalDateTime now = LocalDateTime.now();
+            ZonedDateTime utcTime = now.atZone(ZoneId.of("UTC"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'['yyyy-MM-dd HH:mm:ss']'");
+            timestamp = formatter.format(utcTime);
+
+            // Record the username of the user logged in
+            username = usernameTextField.getText();
+
+            // Set the loginResult
+            if(successfulLogin) {
+                loginResult = "SUCCESSFUL LOGIN";
+            }
+            else {
+                loginResult = "FAILED LOGIN";
+            }
+
+            // Concatenate the pieces of the login activity that will be recorded in the text file
+            String record = timestamp + " UserName:'" + username + "' - " +loginResult + "\n";
+
+            // Write to the text file
+            fileOutputStream.write(record.getBytes(StandardCharsets.UTF_8));
+        }
+        catch(FileNotFoundException e) {
+            System.out.println("login_activity.txt not found" + e);
+        }
+        catch(IOException e) {
+            System.out.println("Exception writing to login_activity.txt " + e);
+        }
+        finally {
+            // Close the file stream
+            try {
+                if(fileOutputStream != null) {
+                    fileOutputStream.close();
+                }
+            }
+            catch(IOException e) {
+                System.out.println("Error closing filestream: " + e);
+            }
+        }
     }
 }
