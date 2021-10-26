@@ -9,7 +9,7 @@
    <children>
       <VBox alignment="TOP_CENTER" layoutX="17.0" layoutY="14.0" prefHeight="549.0" prefWidth="1198.0">
          <children>
-            <Label text="Contact Schedule Report">
+            <Label text="Contact Schedule Report" underline="true">
                <font>
                   <Font size="24.0" />
                </font>
