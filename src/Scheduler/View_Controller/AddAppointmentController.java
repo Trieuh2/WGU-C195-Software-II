@@ -100,7 +100,7 @@ public class AddAppointmentController implements Initializable {
                 maxAppointmentID= rs.getInt(1);
             }
 
-            newAppointment.setID(++maxAppointmentID);
+            newAppointment.setAppointmentID(++maxAppointmentID);
             appointmentIDTextField.setText("" + maxAppointmentID);
         }
         catch (SQLException e) {
@@ -271,7 +271,7 @@ public class AddAppointmentController implements Initializable {
                 if(newAppointment.endTimeAfterStartTime()) {
                     // Checks to make sure that the startTime and endTime are within business hours
                     if (newAppointment.isWithinBusinessHours()) {
-                        if(!newAppointment.overlapsCustomer()) {
+                        if(!newAppointment.customerOverlappingAppt()) {
                             // Add Appointment to DB
                             try {
                                 // DB Query for adding Appointment
@@ -369,8 +369,8 @@ public class AddAppointmentController implements Initializable {
         newAppointment.setDescription(descriptionTextArea.getText());
         newAppointment.setLocation(locationTextField.getText());
         newAppointment.setType(typeTextField.getText());
-        newAppointment.setZonedDateTimeStarts(year, month, day, startHour, startMin, 0);
-        newAppointment.setZonedDateTimeEnds(year, month, day, endHour, endMin, 0);
+        newAppointment.setStartZDTs(year, month, day, startHour, startMin, 0);
+        newAppointment.setEndZDTs(year, month, day, endHour, endMin, 0);
     }
 
     // Sets the 'created' and 'updated' fields in the Appointment object

@@ -96,20 +96,20 @@ public class UpdateAppointmentController implements Initializable {
     // Default select the previously provided values for the start and end of the appointment
     private void preSelectTimeOptions() {
         // Preselect the date of the Appointment
-        ZonedDateTime localZonedDateTimeStart = selectedAppointment.getLocalZonedDateTimeStart();
+        ZonedDateTime localZonedDateTimeStart = selectedAppointment.getLocalStartZDT();
         int year = localZonedDateTimeStart.getYear();
         int month = localZonedDateTimeStart.getMonthValue();
         int day = localZonedDateTimeStart.getDayOfMonth();
         datePicker.setValue(LocalDate.of(year, month, day));
 
         // Preselect the original appointment time start and end values
-        startHour = selectedAppointment.getLocalZonedDateTimeStart().getHour();
-        startMin = selectedAppointment.getLocalZonedDateTimeStart().getMinute();
-        startTimeMenuButton.setText(DateTimeFormatter.ofPattern("hh:mm a").format(selectedAppointment.getLocalZonedDateTimeStart()));
+        startHour = selectedAppointment.getLocalStartZDT().getHour();
+        startMin = selectedAppointment.getLocalStartZDT().getMinute();
+        startTimeMenuButton.setText(DateTimeFormatter.ofPattern("hh:mm a").format(selectedAppointment.getLocalStartZDT()));
 
-        endHour = selectedAppointment.getLocalZonedDateTimeEnd().getHour();
-        endMin = selectedAppointment.getLocalZonedDateTimeEnd().getMinute();
-        endTimeMenuButton.setText(DateTimeFormatter.ofPattern("hh:mm a").format(selectedAppointment.getLocalZonedDateTimeEnd()));
+        endHour = selectedAppointment.getLocalEndZDT().getHour();
+        endMin = selectedAppointment.getLocalEndZDT().getMinute();
+        endTimeMenuButton.setText(DateTimeFormatter.ofPattern("hh:mm a").format(selectedAppointment.getLocalEndZDT()));
     }
 
     // Pre-populates the appointment ID for the new appointment being added
@@ -290,7 +290,7 @@ public class UpdateAppointmentController implements Initializable {
                 if(selectedAppointment.endTimeAfterStartTime()) {
                     // Checks to make sure that the startTime and endTime are within business hours
                     if (selectedAppointment.isWithinBusinessHours()) {
-                        if(!selectedAppointment.overlapsCustomer()) {
+                        if(!selectedAppointment.customerOverlappingAppt()) {
                             // Add Appointment to DB
                             try {
                                 // DB Query for adding Appointment
@@ -386,8 +386,8 @@ public class UpdateAppointmentController implements Initializable {
         selectedAppointment.setDescription(descriptionTextArea.getText());
         selectedAppointment.setLocation(locationTextField.getText());
         selectedAppointment.setType(typeTextField.getText());
-        selectedAppointment.setZonedDateTimeStarts(year, month, day, startHour, startMin, 0);
-        selectedAppointment.setZonedDateTimeEnds(year, month, day, endHour, endMin, 0);
+        selectedAppointment.setStartZDTs(year, month, day, startHour, startMin, 0);
+        selectedAppointment.setEndZDTs(year, month, day, endHour, endMin, 0);
     }
 
     // Sets the 'created' and 'updated' fields in the Appointment object

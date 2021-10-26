@@ -147,8 +147,8 @@ public class MainController implements Initializable {
 
 
                 // Only add the Appointment to the display if it is within the range set
-                if( (tempAppointment.getUtcZonedDateTimeStart().isEqual(startRange) || tempAppointment.getUtcZonedDateTimeStart().isAfter(startRange)) &&
-                        (tempAppointment.getUtcZonedDateTimeEnd().isEqual(endRange) || tempAppointment.getUtcZonedDateTimeEnd().isBefore(endRange))) {
+                if( (tempAppointment.getUtcStartZDT().isEqual(startRange) || tempAppointment.getUtcStartZDT().isAfter(startRange)) &&
+                        (tempAppointment.getUtcEndZDT().isEqual(endRange) || tempAppointment.getUtcEndZDT().isBefore(endRange))) {
                     appointmentTableView.getItems().add(tempAppointment);
                 }
             }
@@ -303,7 +303,7 @@ public class MainController implements Initializable {
                     Appointment tempAppointment = new Appointment(appointmentID, title, description, location,
                             type, utcStartTimestamp, utcEndTimestamp, customerID, userID, contactID);
 
-                    ZonedDateTime utcApptStart = tempAppointment.getUtcZonedDateTimeStart();
+                    ZonedDateTime utcApptStart = tempAppointment.getUtcStartZDT();
 
                     // Generate an alert if there is an upcoming appointment within 15 minutes from logging in
                     if( (utcApptStart.equals(nowZonedDateTime)) ||
@@ -431,6 +431,22 @@ public class MainController implements Initializable {
         // Load the FXML file.
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/AddAppointmentController.fxml"));
         AddAppointmentController controller = new AddAppointmentController(loggedUserID);
+        loader.setController(controller);
+        Parent root = loader.load();
+
+        // Close the current window and build the MainController scene to display the appointment calendar
+        closeCurrentWindow();
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    @FXML
+    private void switchToContactReportController() throws IOException {
+        // Load the FXML file.
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/ContactScheduleReport.fxml"));
+        ContactScheduleReport controller = new ContactScheduleReport(loggedUserID);
         loader.setController(controller);
         Parent root = loader.load();
 

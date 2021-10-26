@@ -90,7 +90,7 @@ public class Appointment {
         return type;
     }
 
-    public ZonedDateTime getUtcZonedDateTimeStart() {
+    public ZonedDateTime getUtcStartZDT() {
         return utcZonedDateTimeStart;
     }
 
@@ -99,7 +99,7 @@ public class Appointment {
         return this.utcStartTimestamp;
     }
 
-    public ZonedDateTime getLocalZonedDateTimeStart() {
+    public ZonedDateTime getLocalStartZDT() {
         return localZonedDateTimeStart;
     }
 
@@ -107,7 +107,7 @@ public class Appointment {
         return localStartTimestamp;
     }
 
-    public ZonedDateTime getUtcZonedDateTimeEnd() {
+    public ZonedDateTime getUtcEndZDT() {
         return utcZonedDateTimeEnd;
     }
 
@@ -115,7 +115,7 @@ public class Appointment {
         return utcEndTimestamp;
     }
 
-    public ZonedDateTime getLocalZonedDateTimeEnd() {
+    public ZonedDateTime getLocalEndZDT() {
         return localZonedDateTimeEnd;
     }
 
@@ -160,7 +160,7 @@ public class Appointment {
     }
 
     // Mutator methods
-    public void setID(int appointmentID) {
+    public void setAppointmentID(int appointmentID) {
         this.appointmentID = appointmentID;
     }
 
@@ -180,7 +180,7 @@ public class Appointment {
         this.type = type;
     }
 
-    public void setZonedDateTimeStarts(int year, int month, int dayOfMonth, int hour, int minute, int second) {
+    public void setStartZDTs(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
         this.localZonedDateTimeStart = localDateTime.atZone(ZoneId.systemDefault());
         this.utcZonedDateTimeStart = this.localZonedDateTimeStart.withZoneSameInstant(ZoneId.of("UTC"));
@@ -194,7 +194,7 @@ public class Appointment {
         this.localStartTimestamp = localDateTimeFormatter.format(localZonedDateTimeStart);
     }
 
-    public void setZonedDateTimeEnds(int year, int month, int dayOfMonth, int hour, int minute, int second) {
+    public void setEndZDTs(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
         this.localZonedDateTimeEnd = localDateTime.atZone(ZoneId.systemDefault());
         this.utcZonedDateTimeEnd = localZonedDateTimeEnd.withZoneSameInstant(ZoneId.of("UTC"));
@@ -320,7 +320,7 @@ public class Appointment {
     }
 
     // Checks to see if the start time and end time is overlapping with an appointment associated with the customer selected
-    public boolean overlapsCustomer() {
+    public boolean customerOverlappingAppt() {
         boolean overlap = false;
 
         try {

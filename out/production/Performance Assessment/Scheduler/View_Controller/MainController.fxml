@@ -7,13 +7,13 @@
 
 <AnchorPane fx:id="mainAnchorPane" prefHeight="580.0" prefWidth="1500.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox layoutX="14.0" layoutY="91.0" prefHeight="370.0" prefWidth="140.0">
+      <VBox layoutX="14.0" layoutY="91.0" prefHeight="170.0" prefWidth="140.0">
          <children>
-            <Button fx:id="addCustomerButton" mnemonicParsing="false" onAction="#switchToAddCustomerController" prefHeight="35.0" prefWidth="100.0" text="Add Customer">
+            <Button fx:id="addCustomerButton" mnemonicParsing="false" onAction="#switchToAddCustomerController" prefHeight="35.0" prefWidth="100.0" text="Add Customer" textAlignment="CENTER">
                <VBox.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </VBox.margin></Button>
-            <Button fx:id="viewCustomersButton" mnemonicParsing="false" onAction="#switchToViewCustomerController" prefHeight="35.0" text="View Customers">
+            <Button fx:id="viewCustomersButton" mnemonicParsing="false" onAction="#switchToViewCustomerController" prefHeight="35.0" text="View Customers" textAlignment="CENTER">
                <VBox.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </VBox.margin></Button>
@@ -21,6 +21,15 @@
                <VBox.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </VBox.margin></Button>
+         </children>
+      </VBox>
+      <VBox layoutX="14.0" layoutY="300.0" prefHeight="170.0" prefWidth="140.0">
+         <children>
+            <Button mnemonicParsing="false" onAction="#switchToContactReportController" text="Contact Schedule Report" textAlignment="CENTER" wrapText="true">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </Button>
          </children>
       </VBox>
       <VBox alignment="TOP_CENTER" layoutX="154.0" layoutY="26.0" prefHeight="500.0" prefWidth="1300.0">
