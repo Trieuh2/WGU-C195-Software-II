@@ -61,14 +61,12 @@ public class Appointment {
         // Parse the timestamp value from the DB into ZonedDateTime objects in UTC and Local Time
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
         this.utcZonedDateTimeStart = ZonedDateTime.parse(utcStartTimestamp + " " + ZoneId.of("UTC"), formatter);
-        setUtcStartTimestamp();
         this.localZonedDateTimeStart = utcZonedDateTimeStart.withZoneSameInstant(ZoneId.systemDefault());
-        setLocalStartTimestamp();
+        setStartTimestamps();
 
         this.utcZonedDateTimeEnd = ZonedDateTime.parse(utcEndTimestamp + " " + ZoneId.of("UTC"), formatter);
-        setUtcEndTimestamp();
         this.localZonedDateTimeEnd = utcZonedDateTimeEnd.withZoneSameInstant(ZoneId.systemDefault());
-        setLocalEndTimestamp();
+        setEndTimestamps();
     }
 
     // Accessor methods
@@ -182,38 +180,32 @@ public class Appointment {
         this.type = type;
     }
 
-    public void setUtcZonedDateTimeStart(int year, int month, int dayOfMonth, int hour, int minute, int second) {
+    public void setZonedDateTimeStarts(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
         this.localZonedDateTimeStart = localDateTime.atZone(ZoneId.systemDefault());
         this.utcZonedDateTimeStart = this.localZonedDateTimeStart.withZoneSameInstant(ZoneId.of("UTC"));
-        setUtcStartTimestamp();
+        setStartTimestamps();
     }
 
-    public void setUtcStartTimestamp() {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        this.utcStartTimestamp = dateTimeFormatter.format(utcZonedDateTimeStart);
+    public void setStartTimestamps() {
+        DateTimeFormatter utcDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter localDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a");
+        this.utcStartTimestamp = utcDateTimeFormatter.format(utcZonedDateTimeStart);
+        this.localStartTimestamp = localDateTimeFormatter.format(localZonedDateTimeStart);
     }
 
-    public void setLocalStartTimestamp() {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a");
-        this.localStartTimestamp = dateTimeFormatter.format(localZonedDateTimeStart);
-    }
-
-    public void setUtcZonedDateTimeEnd(int year, int month, int dayOfMonth, int hour, int minute, int second) {
+    public void setZonedDateTimeEnds(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
         this.localZonedDateTimeEnd = localDateTime.atZone(ZoneId.systemDefault());
         this.utcZonedDateTimeEnd = localZonedDateTimeEnd.withZoneSameInstant(ZoneId.of("UTC"));
-        setUtcEndTimestamp();
+        setEndTimestamps();
     }
 
-    public void setLocalEndTimestamp() {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a");
-        this.localEndTimestamp = dateTimeFormatter.format(localZonedDateTimeEnd);
-    }
-
-    public void setUtcEndTimestamp() {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        this.utcEndTimestamp = dateTimeFormatter.format(utcZonedDateTimeEnd);
+    public void setEndTimestamps() {
+        DateTimeFormatter utcDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter localDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a");
+        this.utcEndTimestamp = utcDateTimeFormatter.format(utcZonedDateTimeEnd);
+        this.localEndTimestamp = localDateTimeFormatter.format(localZonedDateTimeEnd);
     }
 
     public void setCreateDate(String createDate) {

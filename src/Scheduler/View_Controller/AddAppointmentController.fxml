@@ -22,65 +22,12 @@
          </padding>
       </Label>
       <Label layoutX="14.0" layoutY="319.0" text="Type" />
-      <VBox layoutX="310.0" layoutY="68.0">
-         <children>
-            <HBox>
-               <children>
-                  <Label text="Start Time" />
-                  <MenuButton fx:id="startMonthMenuButton" mnemonicParsing="false" text="Month">
-                     <HBox.margin>
-                        <Insets left="20.0" right="5.0" />
-                     </HBox.margin></MenuButton>
-                  <MenuButton fx:id="startDayMenuButton" mnemonicParsing="false" text="Day">
-                     <HBox.margin>
-                        <Insets right="5.0" />
-                     </HBox.margin></MenuButton>
-                  <MenuButton fx:id="startYearMenuButton" mnemonicParsing="false" text="Year">
-                     <HBox.margin>
-                        <Insets right="20.0" />
-                     </HBox.margin></MenuButton>
-                  <MenuButton fx:id="startTimeMenuButton" mnemonicParsing="false" text="Time">
-                     <HBox.margin>
-                        <Insets right="5.0" />
-                     </HBox.margin></MenuButton>
-               </children>
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-            </HBox>
-            <HBox>
-               <children>
-                  <Label text="End Time" />
-                  <MenuButton fx:id="endMonthMenuButton" mnemonicParsing="false" text="Month">
-                     <HBox.margin>
-                        <Insets left="25.0" right="5.0" />
-                     </HBox.margin>
-                  </MenuButton>
-                  <MenuButton fx:id="endDayMenuButton" mnemonicParsing="false" text="Day">
-                     <HBox.margin>
-                        <Insets right="5.0" />
-                     </HBox.margin>
-                  </MenuButton>
-                  <MenuButton fx:id="endYearMenuButton" mnemonicParsing="false" text="Year">
-                     <HBox.margin>
-                        <Insets right="20.0" />
-                     </HBox.margin>
-                  </MenuButton>
-                  <MenuButton fx:id="endTimeMenuButton" mnemonicParsing="false" text="Time">
-                     <HBox.margin>
-                        <Insets right="5.0" />
-                     </HBox.margin>
-                  </MenuButton>
-               </children>
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-            </HBox>
-         </children>
-         <padding>
-            <Insets left="30.0" />
-         </padding>
-      </VBox>
+      <Label layoutX="339.0" layoutY="72.0" text="Date" />
+      <Label layoutX="337.0" layoutY="120.0" text="Start Time" />
+      <Label layoutX="337.0" layoutY="153.0" text="End Time" />
+      <DatePicker fx:id="datePicker" layoutX="400.0" layoutY="68.0" />
+      <MenuButton fx:id="startTimeMenuButton" layoutX="400.0" layoutY="116.0" mnemonicParsing="false" text="Time" />
+      <MenuButton fx:id="endTimeMenuButton" layoutX="400.0" layoutY="149.0" mnemonicParsing="false" text="Time" />
       <TextField fx:id="appointmentIDTextField" disable="true" editable="false" layoutX="162.0" layoutY="68.0" />
       <TextField fx:id="titleTextField" layoutX="162.0" layoutY="124.0" />
       <TextArea fx:id="descriptionTextArea" layoutX="162.0" layoutY="161.0" prefHeight="65.0" prefWidth="148.0" wrapText="true" />

@@ -20,7 +20,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -42,33 +42,20 @@ public class UpdateAppointmentController implements Initializable {
     @FXML MenuButton customerMenuButton;
     @FXML MenuButton contactMenuButton;
 
-    @FXML MenuButton startMonthMenuButton;
-    @FXML MenuButton endMonthMenuButton;
-
-    @FXML MenuButton startDayMenuButton;
-    @FXML MenuButton endDayMenuButton;
-
-    @FXML MenuButton startYearMenuButton;
-    @FXML MenuButton endYearMenuButton;
-
     @FXML MenuButton startTimeMenuButton;
     @FXML MenuButton endTimeMenuButton;
 
+    @FXML DatePicker datePicker;
 
-    // Appointment object that is going to be added
+
+    // Appointment object that is created using data pulled from the Database
     private Appointment selectedAppointment;
 
     // Start Date and Time fields
-    private int startMonth = -1;
-    private int startDay = -1;
-    private int startYear = -1;
     private int startHour = -1;
     private int startMin = -1;
 
     // End Date and Time fields
-    private int endMonth = -1;
-    private int endDay = -1;
-    private int endYear = -1;
     private int endHour = -1;
     private int endMin = -1;
 
@@ -108,37 +95,21 @@ public class UpdateAppointmentController implements Initializable {
 
     // Default select the previously provided values for the start and end of the appointment
     private void preSelectTimeOptions() {
-        // Start Date and Time values
-        startMonth = selectedAppointment.getLocalZonedDateTimeStart().getMonthValue();
-        startMonthMenuButton.setText("" + startMonth);
+        // Preselect the date of the Appointment
+        ZonedDateTime localZonedDateTimeStart = selectedAppointment.getLocalZonedDateTimeStart();
+        int year = localZonedDateTimeStart.getYear();
+        int month = localZonedDateTimeStart.getMonthValue();
+        int day = localZonedDateTimeStart.getDayOfMonth();
+        datePicker.setValue(LocalDate.of(year, month, day));
 
-        startDay = selectedAppointment.getLocalZonedDateTimeStart().getDayOfMonth();
-        startDayMenuButton.setText("" + startDay);
-
-        startYear = selectedAppointment.getUtcZonedDateTimeStart().getYear();
-        startYearMenuButton.setText("" + startYear);
-
+        // Preselect the original appointment time start and end values
         startHour = selectedAppointment.getLocalZonedDateTimeStart().getHour();
         startMin = selectedAppointment.getLocalZonedDateTimeStart().getMinute();
         startTimeMenuButton.setText(DateTimeFormatter.ofPattern("hh:mm a").format(selectedAppointment.getLocalZonedDateTimeStart()));
 
-        // End Date and Time values
-        endMonth = selectedAppointment.getLocalZonedDateTimeEnd().getMonthValue();
-        endMonthMenuButton.setText("" + endMonth);
-
-        endDay = selectedAppointment.getLocalZonedDateTimeEnd().getDayOfMonth();
-        endDayMenuButton.setText("" + endDay);
-
-        endYear = selectedAppointment.getLocalZonedDateTimeEnd().getYear();
-        endYearMenuButton.setText("" + endYear);
-
         endHour = selectedAppointment.getLocalZonedDateTimeEnd().getHour();
         endMin = selectedAppointment.getLocalZonedDateTimeEnd().getMinute();
         endTimeMenuButton.setText(DateTimeFormatter.ofPattern("hh:mm a").format(selectedAppointment.getLocalZonedDateTimeEnd()));
-
-        // Prepopulate the day options depending on the month and year selected
-        prepopulateDayOptions(startMonth, startYear,"Start");
-        prepopulateDayOptions(endMonth, endYear,"End");
     }
 
     // Pre-populates the appointment ID for the new appointment being added
@@ -230,117 +201,6 @@ public class UpdateAppointmentController implements Initializable {
 
     // Pre-populate the time options
     private void loadTimeOptions() {
-        // Populate Month options
-        for(int i = 1; i <= 12; i++) {
-            // Start Month menu
-            MenuItem startMonthMenuItem;
-
-            if(i < 10) {
-                startMonthMenuItem = new MenuItem("0" + i);
-            }
-            else{
-                startMonthMenuItem = new MenuItem("" + i);
-            }
-
-            startMonthMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    // Only updates display when a new month is selected
-                    if(startMonth != Integer.parseInt(startMonthMenuItem.getText())) {
-                        // Set text and variable values
-                        startMonthMenuButton.setText(startMonthMenuItem.getText());
-                        startMonth = Integer.parseInt(startMonthMenuItem.getText());
-
-                        // Enable day menu button/reset the selection when a new month is selected
-                        startDayMenuButton.setDisable(false);
-                        startDayMenuButton.getItems().clear();
-                        startDayMenuButton.setText("Day");
-                        startDay = -1; // Will require a new start day to be selected
-                        prepopulateDayOptions(startMonth, startYear,"Start");
-                    }
-                }
-            });
-            startMonthMenuButton.getItems().add(startMonthMenuItem);
-
-            // End Month menu
-            MenuItem endMonthMenuItem;
-
-            if(i < 10) {
-                endMonthMenuItem = new MenuItem("0" + i);
-            }
-            else{
-                endMonthMenuItem = new MenuItem("" + i);
-            }
-
-            endMonthMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    // Only updates display when a new month is selected
-                    if(endMonth != Integer.parseInt(endMonthMenuItem.getText())) {
-                        // Set text and variable values
-                        endMonthMenuButton.setText(endMonthMenuItem.getText());
-                        endMonth = Integer.parseInt(endMonthMenuItem.getText());
-
-                        // Enable day menu button/reset the day selection when a new month is selected
-                        endDayMenuButton.setDisable(false);
-                        endDayMenuButton.getItems().clear();
-                        endDayMenuButton.setText("Day");
-                        endDay = -1; // Will require a new endDay to be selected
-                        prepopulateDayOptions(endMonth, endYear, "End");
-                    }
-                }
-            });
-            endMonthMenuButton.getItems().add(endMonthMenuItem);
-        }
-
-        // Populate Year options
-        int currentYear = LocalDateTime.now().getYear();
-        for(int i = currentYear; i <= (currentYear + 10); i++) {
-            // Start year menu options
-            MenuItem startYearMenuItem = new MenuItem("" + i);
-
-            startYearMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    // Only updates display when a new year is selected
-                    if(startYear != Integer.parseInt(startYearMenuItem.getText())) {
-                        // Set text and variable values
-                        startYearMenuButton.setText(startYearMenuItem.getText());
-                        startYear = Integer.parseInt(startYearMenuItem.getText());
-
-                        // Reset the day selection when a new month is selected
-                        startDayMenuButton.getItems().clear();
-                        startDayMenuButton.setText("Day");
-                        startDay = -1;
-                        prepopulateDayOptions(startMonth, startYear, "Start");
-                    }
-                }
-            });
-            startYearMenuButton.getItems().add(startYearMenuItem);
-
-            // End year menu options
-            MenuItem endYearMenuItem = new MenuItem("" + i);
-
-            endYearMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    // Only updates display when a new year is selected
-                    if(endYear != Integer.parseInt(endYearMenuItem.getText())) {
-                        // Set text and variable values
-                        endYearMenuButton.setText(endYearMenuItem.getText());
-                        endYear = Integer.parseInt(endYearMenuItem.getText());
-
-                        // Reset the day selection when a new month is selected
-                        endDayMenuButton.getItems().clear();
-                        endDayMenuButton.setText("Day");
-                        endDay = -1;
-                        prepopulateDayOptions(endMonth, endYear, "End");
-                    }
-                }
-            });
-            endYearMenuButton.getItems().add(endYearMenuItem);
-        }
-
         // Populate Time options
         String amPM = "AM";
         int hourCounted = 0;
@@ -413,40 +273,6 @@ public class UpdateAppointmentController implements Initializable {
             // Increment loop variables
             hourCounted++;
             hourDisplay++;
-        }
-    }
-
-    // Method called to provide the correct number of selectable days based off the Month selected
-    private void prepopulateDayOptions(int month, int year, String startEnd) {
-        LocalDate temp = LocalDate.of(year,month,1);
-        int maxDays = temp.lengthOfMonth();
-
-        for(int i = 1; i <= maxDays; i++) {
-            MenuItem dayMenuItem = new MenuItem("" + i);
-
-            if(startEnd.equals("Start")) {
-                dayMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent actionEvent) {
-                        startDayMenuButton.setText(dayMenuItem.getText());
-                        startDay = Integer.parseInt(dayMenuItem.getText());
-                    }
-                });
-
-                startDayMenuButton.getItems().add(dayMenuItem);
-            }
-
-            else if(startEnd.equals("End")) {
-                dayMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent actionEvent) {
-                        endDayMenuButton.setText(dayMenuItem.getText());
-                        endDay = Integer.parseInt(dayMenuItem.getText());
-                    }
-                });
-                endDayMenuButton.getItems().add(dayMenuItem);
-            }
-
         }
     }
 
@@ -541,9 +367,8 @@ public class UpdateAppointmentController implements Initializable {
     private boolean allFieldsFilled() {
         if(!titleTextField.getText().isEmpty() && !descriptionTextArea.getText().isEmpty() &&
                 !locationTextField.getText().isEmpty() && !typeTextField.getText().isEmpty() &&
-                (startMonth >= 1) && (startDay >= 1) && (startYear > 0) && (startHour >= 0) && (startMin >= 0) &&
-                (endMonth >= 1) && (endDay >= 1) && (endYear > 0) && (endHour >= 0) && (endMin >= 0) &&
-                (customerSelected) && (contactSelected) ) {
+                (customerSelected) && (contactSelected) && (datePicker.getValue().toString() != null) &&
+                (startHour >= 0) && (startMin >= 0) && (endHour >= 0) && (endMin >= 0)) {
             return true;
         }
         else {
@@ -553,12 +378,16 @@ public class UpdateAppointmentController implements Initializable {
 
     // Take values from TextFields/TextAreas and assign it to the Appointment being added
     private void parseFormFields() {
+        int year = datePicker.getValue().getYear();
+        int month = datePicker.getValue().getMonth().getValue();
+        int day = datePicker.getValue().getDayOfMonth();
+
         selectedAppointment.setTitle(titleTextField.getText());
         selectedAppointment.setDescription(descriptionTextArea.getText());
         selectedAppointment.setLocation(locationTextField.getText());
         selectedAppointment.setType(typeTextField.getText());
-        selectedAppointment.setUtcZonedDateTimeStart(startYear, startMonth, startDay, startHour, startMin, 0);
-        selectedAppointment.setUtcZonedDateTimeEnd(endYear, endMonth, endDay, endHour, endMin, 0);
+        selectedAppointment.setZonedDateTimeStarts(year, month, day, startHour, startMin, 0);
+        selectedAppointment.setZonedDateTimeEnds(year, month, day, endHour, endMin, 0);
     }
 
     // Sets the 'created' and 'updated' fields in the Appointment object
