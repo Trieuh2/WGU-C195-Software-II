@@ -48,7 +48,7 @@ public class ViewCustomerController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        setCellFactoryValues();
+        initializeTableColumns();
         loadCustomers();
         initializeTableViewListener();
 
@@ -73,7 +73,7 @@ public class ViewCustomerController implements Initializable {
     }
 
     // Sets the column names and accepted property in the column
-    private void setCellFactoryValues() {
+    private void initializeTableColumns() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("ID"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));

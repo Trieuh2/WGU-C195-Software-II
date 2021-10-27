@@ -1,3 +1,11 @@
+/**
+ * This class allows the user to update an existing Appointment on the connected database by filling out form fields on the
+ * page. When the page first loads, it will display the current values associated with the Appointment. The form is
+ * nearly identical to the AddAppointmentController form.
+ *
+ * @author Henry Trieu
+ */
+
 package Scheduler.View_Controller;
 
 import Model.Appointment;
@@ -67,6 +75,10 @@ public class UpdateAppointmentController implements Initializable {
     private final int loggedUserID;
     private String loggedUsername;
 
+    /**
+     * Retrieves the username of the currently logged user for auditing purposes.
+     * Preloads and preselects the options within the page based on the original values provided.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         loggedUsername = getLoggedUsername();
@@ -80,12 +92,21 @@ public class UpdateAppointmentController implements Initializable {
         loadTimeOptions();
     }
 
+    /**
+     * This is the constructor for this class.
+     *
+     * @param loggedUserID is used for tracking the current user logged in, which is used for auditing who added the Customer,
+     *                     and who last updated the Customer.
+     * @param selectedAppointment is the selected Appointment passed from the MainController page
+     */
     public UpdateAppointmentController(int loggedUserID, Appointment selectedAppointment) {
         this.loggedUserID = loggedUserID;
         this.selectedAppointment = selectedAppointment;
     }
 
-    // Fills out the TextFields/TextAreas with the previously provided values
+    /**
+     * Fills out the TextFields/TextAreas with the previously provided values
+     */
     private void loadTextFields() {
         titleTextField.setText(selectedAppointment.getTitle());
         descriptionTextArea.setText(selectedAppointment.getDescription());
@@ -93,7 +114,9 @@ public class UpdateAppointmentController implements Initializable {
         typeTextField.setText(selectedAppointment.getType());
     }
 
-    // Default select the previously provided values for the start and end of the appointment
+    /**
+     * Default select the previously provided values for the start and end of the appointment
+     */
     private void preSelectTimeOptions() {
         // Preselect the date of the Appointment
         ZonedDateTime localZonedDateTimeStart = selectedAppointment.getLocalStartZDT();
@@ -112,12 +135,17 @@ public class UpdateAppointmentController implements Initializable {
         endTimeMenuButton.setText(DateTimeFormatter.ofPattern("hh:mm a").format(selectedAppointment.getLocalEndZDT()));
     }
 
-    // Pre-populates the appointment ID for the new appointment being added
+    /**
+     * Loads the Appointment ID associated to the selectedAppointment when it was first created. This value will never change
+     * once an Appointment is added to the database.
+     */
     private void loadAppointmentID() {
         appointmentIDTextField.setText("" + selectedAppointment.getAppointmentID());
     }
 
-    // Pre-populates the options within the drop-down menu for customers
+    /**
+     * Pre-populates the options within the drop-down menu for customers
+     */
     private void loadCustomers() {
         // Pre-select the Customer associated with the Appointment
         customerMenuButton.setText(selectedAppointment.getCustomerName());
@@ -157,7 +185,9 @@ public class UpdateAppointmentController implements Initializable {
         }
     }
 
-    // Pre-populates the options within the drop-down menu for contacts
+    /**
+     * Pre-populates the options within the drop-down menu for contacts
+     */
     private void loadContacts() {
         // Pre-select the Customer associated with the Appointment
         contactMenuButton.setText(selectedAppointment.getContactName());
@@ -199,7 +229,9 @@ public class UpdateAppointmentController implements Initializable {
         }
     }
 
-    // Pre-populate the time options
+    /**
+     * Populates the appointment start/end time options. The selectable start/end times will be selectable in 30 minute intervals
+     */
     private void loadTimeOptions() {
         // Populate Time options
         String amPM = "AM";
@@ -276,7 +308,10 @@ public class UpdateAppointmentController implements Initializable {
         }
     }
 
-    // Adds the appointment to the Database
+    /**
+     * Updates the selected Appointment within the database with new user-provided values entered on the form.
+     * This will also check to ensure that values have been provided to all fields on the form and the start/end times are valid
+     */
     @FXML
     private void updateAppointment() {
         // Check to ensure that all fields on the form are filled
@@ -363,7 +398,12 @@ public class UpdateAppointmentController implements Initializable {
         }
     }
 
-    // Checks to see if all the fields on the form has been filled
+    /**
+     * Checks to see if all the fields on the form has been filled. The forms checked only apply to form fields that the
+     * end-user can provide a value to.
+     *
+     * @return if all forms on the field have been provided a value by the end-user.
+     */
     private boolean allFieldsFilled() {
         if(!titleTextField.getText().isEmpty() && !descriptionTextArea.getText().isEmpty() &&
                 !locationTextField.getText().isEmpty() && !typeTextField.getText().isEmpty() &&
@@ -376,7 +416,9 @@ public class UpdateAppointmentController implements Initializable {
         }
     }
 
-    // Take values from TextFields/TextAreas and assign it to the Appointment being added
+    /**
+     * Take values from the fields on the form and assign it to the Appointment object associated with this class
+     */
     private void parseFormFields() {
         int year = datePicker.getValue().getYear();
         int month = datePicker.getValue().getMonth().getValue();
@@ -390,7 +432,9 @@ public class UpdateAppointmentController implements Initializable {
         selectedAppointment.setEndZDTs(year, month, day, endHour, endMin, 0);
     }
 
-    // Sets the 'created' and 'updated' fields in the Appointment object
+    /**
+     * Sets the 'created' and 'updated' fields in the Appointment object
+     */
     private void setAuditTimestamps() {
         SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -399,7 +443,11 @@ public class UpdateAppointmentController implements Initializable {
         selectedAppointment.setLastUpdatedBy(loggedUsername);
     }
 
-    // Retrieves the username of the currently logged-in user for record adding purposes
+    /**
+     * Retrieves the username of the currently logged-in user for record adding purposes
+     *
+     * @return the username of the logged-in user based off the UserID passed through the constructor of this class.
+     */
     private String getLoggedUsername() {
         String username = "";
 
@@ -419,7 +467,9 @@ public class UpdateAppointmentController implements Initializable {
         return username;
     }
 
-    // Closes current scene and switches back to the main controller
+    /**
+     * Closes current scene and switches back to the main controller
+     */
     @FXML
     private void returnToMainController() {
         try {
@@ -441,7 +491,9 @@ public class UpdateAppointmentController implements Initializable {
         }
     }
 
-    // Closes the current window
+    /**
+     * Closes the current window. This method is called within returnToMainController() as a helper function.
+     */
     private void closeCurrentWindow() {
         Stage currentStage = (Stage)addApptAnchorPane.getScene().getWindow();
         currentStage.close();

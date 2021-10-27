@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="mainAnchorPane" prefHeight="629.0" prefWidth="1231.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="mainAnchorPane" prefHeight="587.0" prefWidth="1231.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox alignment="TOP_CENTER" layoutX="17.0" layoutY="14.0" prefHeight="549.0" prefWidth="1198.0">
          <children>
@@ -36,6 +36,5 @@
             </HBox>
          </children>
       </VBox>
-      <Button fx:id="exitButton" layoutX="1139.0" layoutY="590.0" mnemonicParsing="false" onAction="#switchToMainController" prefHeight="25.0" prefWidth="67.0" text="Exit" />
    </children>
 </AnchorPane>

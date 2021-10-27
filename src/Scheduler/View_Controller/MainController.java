@@ -417,7 +417,7 @@ public class MainController implements Initializable {
         loader.setController(controller);
         Parent root = loader.load();
 
-        // Close the current window and build the MainController scene to display the appointment calendar
+        // Close the current window and display the View Customer
         closeCurrentWindow();
         Scene scene = new Scene(root);
         Stage stage = new Stage();
@@ -434,7 +434,7 @@ public class MainController implements Initializable {
         loader.setController(controller);
         Parent root = loader.load();
 
-        // Close the current window and build the MainController scene to display the appointment calendar
+        // Close the current window and display the scene to add a new Appointment
         closeCurrentWindow();
         Scene scene = new Scene(root);
         Stage stage = new Stage();
@@ -446,15 +446,31 @@ public class MainController implements Initializable {
     private void switchToContactReportController() throws IOException {
         // Load the FXML file.
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/ContactScheduleReport.fxml"));
-        ContactScheduleReport controller = new ContactScheduleReport(loggedUserID);
+        ContactScheduleReport controller = new ContactScheduleReport();
         loader.setController(controller);
         Parent root = loader.load();
 
-        // Close the current window and build the MainController scene to display the appointment calendar
-        closeCurrentWindow();
+        // Build the report scene and display it
         Scene scene = new Scene(root);
         Stage stage = new Stage();
         stage.setScene(scene);
+        stage.setAlwaysOnTop(true);
+        stage.show();
+    }
+
+    @FXML
+    private void switchToTypeMonthReportController() throws IOException {
+        // Load the FXML file.
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/TypeMonthReport.fxml"));
+        TypeMonthReport controller = new TypeMonthReport();
+        loader.setController(controller);
+        Parent root = loader.load();
+
+        // Build the report scene and display it
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.setAlwaysOnTop(true);
         stage.show();
     }
 }

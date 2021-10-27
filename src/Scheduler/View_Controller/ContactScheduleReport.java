@@ -45,17 +45,14 @@ public class ContactScheduleReport implements Initializable {
     // Variable for tracking contact selected
     private int selectedContactID;
 
-    // Variable for tracking the user that is currently logged in
-    private final int loggedUserID;
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setCellFactoryValues();
         loadContacts();
     }
 
-    public ContactScheduleReport(int loggedUserID) {
-        this.loggedUserID = loggedUserID;
+    public ContactScheduleReport() {
+
     }
 
     // Sets the column names and accepted property in the column
@@ -138,28 +135,5 @@ public class ContactScheduleReport implements Initializable {
         catch(SQLException e) {
             System.out.println("There was an error retrieving Contact information from the database.");
         }
-    }
-
-    // Closes the current window
-    private void closeCurrentWindow() {
-        Stage currentStage = (Stage)mainAnchorPane.getScene().getWindow();
-        currentStage.close();
-    }
-
-    // Closes the screen and switches to MainController where the appointment calendar is displayed
-    @FXML
-    private void switchToMainController() throws IOException {
-        // Load the FXML file.
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
-        MainController controller = new MainController(loggedUserID, false);
-        loader.setController(controller);
-        Parent root = loader.load();
-
-        // Close the current window and build the MainController scene to display the appointment calendar
-        closeCurrentWindow();
-        Scene scene = new Scene(root);
-        Stage stage = new Stage();
-        stage.setScene(scene);
-        stage.show();
     }
 }

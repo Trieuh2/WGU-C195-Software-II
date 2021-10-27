@@ -1,3 +1,10 @@
+/**
+ * This class allows the user to add a new Appointment to the connected database by filling out form fields on the
+ * page.
+ *
+ * @author Henry Trieu
+ */
+
 package Scheduler.View_Controller;
 
 import Model.Appointment;
@@ -40,7 +47,6 @@ public class AddAppointmentController implements Initializable {
     @FXML MenuButton contactMenuButton;
     @FXML MenuButton startTimeMenuButton;
     @FXML MenuButton endTimeMenuButton;
-
     @FXML DatePicker datePicker;
 
 
@@ -63,6 +69,10 @@ public class AddAppointmentController implements Initializable {
     private final int loggedUserID;
     private String loggedUsername;
 
+    /**
+     * Preloads and preselects the customers, contacts, and time options within the page for adding a new Appointment to the database.
+     * The start and end date of the Appointment will default to select the current date.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         newAppointment = new Appointment();
@@ -77,21 +87,32 @@ public class AddAppointmentController implements Initializable {
         loadTimeOptions();
     }
 
+    /**
+     * This is the constructor for this class.
+     *
+     * @param loggedUserID is used for tracking the current user logged in, which is used for auditing who added the Appointment,
+     *                     and who last updated the Appointment.
+     */
     public AddAppointmentController(int loggedUserID) {
         this.loggedUserID = loggedUserID;
     }
 
-    // Default select the today's date for the start and end of the Appointment
+    /**
+     * Default select the today's date for the start and end date of the Appointment
+     */
     private void preSelectCurrentDate() {
         datePicker.setValue(LocalDate.now());
     }
 
-    // Pre-populates the appointment ID for the new appointment being added
+    /**
+     * Pre-populates the new appointment ID for the new appointment being added by finding the highest Appointment ID value
+     * of existing Appointments and adding 1 to the highest value.
+     */
     private void generateAppointmentID() {
         try {
             int maxAppointmentID = 1;
 
-            // DB Query
+            // Queries the Appointment with the highest Appointment ID number used determine the new Appointment ID
             String query = "SELECT MAX(Appointment_ID) FROM appointments";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
@@ -100,6 +121,7 @@ public class AddAppointmentController implements Initializable {
                 maxAppointmentID= rs.getInt(1);
             }
 
+            // Record the new Appointment ID number and set the text into the TextField
             newAppointment.setAppointmentID(++maxAppointmentID);
             appointmentIDTextField.setText("" + maxAppointmentID);
         }
@@ -108,10 +130,12 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-    // Pre-populates the options within the drop-down menu for customers
+    /**
+     * Pre-populates the options within the drop-down menu for customers
+     */
     private void loadCustomers() {
         try {
-            // DB Query
+            // Queries the customers in alphabetical order
             String query = "SELECT * FROM customers ORDER BY Customer_Name ASC";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
@@ -143,15 +167,16 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-    // Pre-populates the options within the drop-down menu for contacts
+    /**
+     * Pre-populates the options within the drop-down menu for contacts
+     */
     private void loadContacts() {
         try {
-            // DB Query
+            // Queries all Contacts in alphabetical order
             String query = "SELECT * FROM contacts ORDER BY Contact_Name ASC";
             Statement st = JDBC.connection.createStatement();
             ResultSet rs = st.executeQuery(query);
 
-            // Add the country options to the ArrayList
             while(rs.next()) {
                 // Create Menu Items for each Contact found in the DB
                 int contactID = Integer.parseInt(rs.getString(1));
@@ -180,7 +205,9 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-    // Pre-populate the time options
+    /**
+     * Populates the appointment start/end time options. The selectable start/end times will be selectable in 30 minute intervals
+     */
     private void loadTimeOptions() {
         // Populate Time options
         String amPM = "AM";
@@ -257,7 +284,10 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-    // Adds the appointment to the Database
+    /**
+     * Performs various checks to ensure that the values on the form are valid and adds the Appointment to the database.
+     * This will also check to ensure that values have been provided to all fields on the form and the start/end times are valid
+     */
     @FXML
     private void addAppointment() {
         // Check to ensure that all fields on the form are filled
@@ -272,9 +302,8 @@ public class AddAppointmentController implements Initializable {
                     // Checks to make sure that the startTime and endTime are within business hours
                     if (newAppointment.isWithinBusinessHours()) {
                         if(!newAppointment.customerOverlappingAppt()) {
-                            // Add Appointment to DB
                             try {
-                                // DB Query for adding Appointment
+                                // Add Appointment to DB and return to the main controller
                                 String update = "INSERT INTO appointments VALUES (" + newAppointment.getAppointmentID() + ", '"
                                         + newAppointment.getTitle() + "', '"
                                         + newAppointment.getDescription() + "', '"
@@ -299,6 +328,7 @@ public class AddAppointmentController implements Initializable {
                             }
                         }
                         else {
+                            // Generate a dialogue error indicating that the requested appointment time is conflicting with a customer's schedule.
                             Alert alert = new Alert(Alert.AlertType.WARNING);
                             alert.setTitle("Error");
                             alert.setContentText("The requested appointment time are conflicting with the customer's appointment schedule.\n\nPlease provide a new time.");
@@ -308,6 +338,7 @@ public class AddAppointmentController implements Initializable {
                         }
                     }
                     else {
+                        // Generate a dialogue error indicating that the appointment times must occur within business hours
                         Alert alert = new Alert(Alert.AlertType.WARNING);
                         alert.setTitle("Error");
                         alert.setContentText("The appointment start and end times must occur within the business hours of 8AM - 10PM EST within the same day.");
@@ -317,6 +348,7 @@ public class AddAppointmentController implements Initializable {
                     }
                 }
                 else {
+                    // Generate a dialogue error indicating that the end time must occur after the start time
                     Alert alert = new Alert(Alert.AlertType.WARNING);
                     alert.setTitle("Error");
                     alert.setContentText("The end time of the appointment must occur after the start time.");
@@ -326,6 +358,7 @@ public class AddAppointmentController implements Initializable {
                 }
             }
             else {
+                // Generate a dialogue error indicating that the start time must occur in the future
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Error");
                 alert.setContentText("The start time of the appointment must occur in the future.");
@@ -334,8 +367,8 @@ public class AddAppointmentController implements Initializable {
                 alert.show();
             }
         }
-        // Pop a dialogue error indicating that there is a field with missing values
         else {
+            // Generate a dialogue error indicating that there is a field with missing values
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Error");
             alert.setContentText("All fields must have a value.");
@@ -345,7 +378,14 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-    // Checks to see if all the fields on the form has been filled
+    //
+
+    /**
+     * Checks to see if all the fields on the form has been filled. The forms checked only apply to form fields that the
+     * end-user can provide a value to.
+     *
+     * @return if all forms on the field have been provided a value by the end-user.
+     */
     private boolean allFieldsFilled() {
         if(!titleTextField.getText().isEmpty() && !descriptionTextArea.getText().isEmpty() &&
                 !locationTextField.getText().isEmpty() && !typeTextField.getText().isEmpty() &&
@@ -358,8 +398,9 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-
-    // Take values from the fields on the form and assign it to the Appointment object
+    /**
+     * Take values from the fields on the form and assign it to the Appointment object associated with this class
+     */
     private void parseFormFields() {
         int year = datePicker.getValue().getYear();
         int month = datePicker.getValue().getMonth().getValue();
@@ -373,7 +414,9 @@ public class AddAppointmentController implements Initializable {
         newAppointment.setEndZDTs(year, month, day, endHour, endMin, 0);
     }
 
-    // Sets the 'created' and 'updated' fields in the Appointment object
+    /**
+     * Sets the 'created' and 'updated' fields in the Appointment object
+     */
     private void setAuditTimestamps() {
         SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -384,7 +427,11 @@ public class AddAppointmentController implements Initializable {
         newAppointment.setLastUpdatedBy(loggedUsername);
     }
 
-    // Retrieves the username of the currently logged-in user for record adding purposes
+    /**
+     * Retrieves the username of the currently logged-in user for record adding purposes
+     *
+     * @return the username of the logged-in user based off the UserID passed through the constructor of this class.
+     */
     private String getLoggedUsername() {
         String username = "";
 
@@ -404,7 +451,9 @@ public class AddAppointmentController implements Initializable {
         return username;
     }
 
-    // Closes current scene and switches back to the main controller
+    /**
+     * Closes current scene and switches back to the main controller
+     */
     @FXML
     private void returnToMainController() {
         try {
@@ -414,7 +463,7 @@ public class AddAppointmentController implements Initializable {
             loader.setController(controller);
             Parent root = loader.load();
 
-            // Close the current window and build the MainController scene to display the appointment calendar
+            // Close the current window and build the main controller scene to display the appointment calendar
             closeCurrentWindow();
             Scene scene = new Scene(root);
             Stage stage = new Stage();
@@ -426,7 +475,9 @@ public class AddAppointmentController implements Initializable {
         }
     }
 
-    // Closes the current window
+    /**
+     * Closes the current window. This method is called within returnToMainController() as a helper function.
+     */
     private void closeCurrentWindow() {
         Stage currentStage = (Stage)addApptAnchorPane.getScene().getWindow();
         currentStage.close();

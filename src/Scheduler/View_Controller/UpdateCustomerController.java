@@ -48,6 +48,10 @@ public class UpdateCustomerController implements Initializable {
     private String loggedUsername;
 
     // Calls all the methods to prepopulate fields and menu options
+    /**
+     * Retrieves the username of the currently logged user for auditing purposes.
+     * Preloads and preselects the country, division, and customer information fields within the page based on the values previously provided.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         loggedUsername = retrieveUsernameLoggedIn();
@@ -56,12 +60,21 @@ public class UpdateCustomerController implements Initializable {
         prepopulateCustomerInfoFields();
     }
 
+    /**
+     * This is the constructor for this class.
+     *
+     * @param selectedCustomer is the Customer object for the selected Customer that is being updated.
+     * @param loggedUserID is used for tracking the current user logged in, which is used for auditing who added the Customer,
+     *                     and who last updated the Customer.
+     */
     public UpdateCustomerController(Customer selectedCustomer, int loggedUserID) {
         this.loggedUserID = loggedUserID;
         this.updatedCustomer = selectedCustomer;
     }
 
-    // Preloads the TextFields with the customer's information
+    /**
+     * Preloads the TextFields with the customer's information based on the current values associated with the Customer that is being updated.
+     */
     private void prepopulateCustomerInfoFields() {
         // Set the String in the TextFields
         custIDTextField.setText("" + updatedCustomer.getID());
@@ -73,7 +86,9 @@ public class UpdateCustomerController implements Initializable {
         divisionMenu.setText(updatedCustomer.getDivisionName());
     }
 
-    // Pre-populates the country options into the menu box
+    /**
+     * Pre-populates the country options into the menu box
+     */
     private void prepopulateCountryOptions() {
         try {
             ArrayList<String> countryNames = new ArrayList<String>();
@@ -127,7 +142,9 @@ public class UpdateCustomerController implements Initializable {
         }
     }
 
-    // Pre-populates State and Division options based off the country selection
+    /**
+     * Pre-populates State and Division options based off the country selection
+     */
     private void prepopulateDivisionOptions(int id) {
         // Query all the first level divisions from the DB
         try {
@@ -173,7 +190,10 @@ public class UpdateCustomerController implements Initializable {
         }
     }
 
-    // Updates the customer's records with the values provided/selected
+    /**
+     * Checks to ensure that all fields on the form have been field, assigns parsed values from the form to a temporary
+     * Customer object, and then updates the selected customer in the database.
+     */
     @FXML
     private void updateCustomer() {
         // Ensure that all fields on the form have been provided a value
@@ -215,7 +235,11 @@ public class UpdateCustomerController implements Initializable {
     }
 
 
-    // Retrieves current logged in, used for auditing the user that added the customer
+    /**
+     * Retrieves the username of the currently logged-in user for record adding purposes
+     *
+     * @return the username of the logged-in user based off the UserID passed through the constructor of this class.
+     */
     private String retrieveUsernameLoggedIn() {
         String username = "";
 
@@ -235,7 +259,12 @@ public class UpdateCustomerController implements Initializable {
         return username;
     }
 
-    // Checks to ensure that all fields on the form have been provided a value
+    /**
+     * Checks to see if all the fields on the form has been filled. The forms checked only apply to form fields that the
+     * end-user can provide a value to.
+     *
+     * @return if all forms on the field have been provided a value by the end-user.
+     */
     private boolean allFieldsFilled() {
         if(!custNameTextField.getText().isEmpty() &&
                 (!custAddressTextField.getText().isEmpty()) &&
@@ -249,7 +278,9 @@ public class UpdateCustomerController implements Initializable {
         }
     }
 
-    // Get values from the TextFields and store them in variables
+    /**
+     * Take values from the fields on the form and assign it to the Customer object associated with this class
+     */
     private void parseFormFields() {
         updatedCustomer.setName(custNameTextField.getText());
         updatedCustomer.setAddress(custAddressTextField.getText());
@@ -257,7 +288,9 @@ public class UpdateCustomerController implements Initializable {
         updatedCustomer.setPhoneNumber(custPhoneNumberTextField.getText());
     }
 
-    // Sets the 'updated' fields in the Customer object
+    /**
+     * Sets the 'created' and 'updated' fields in the Customer object
+     */
     private void setAuditTimestamps() {
         SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -267,7 +300,9 @@ public class UpdateCustomerController implements Initializable {
 
     }
 
-    // Closes the main screen and switches to the controller where the user can view all the customers
+    /**
+     * Closes current scene and switches back to the main controller
+     */
     @FXML
     private void switchToViewCustomerController() {
         try {
@@ -289,7 +324,9 @@ public class UpdateCustomerController implements Initializable {
         }
     }
 
-    // Closes the current window
+    /**
+     * Closes the current window. This method is called within returnToMainController() as a helper function.
+     */
     private void closeCurrentWindow() {
         Stage currentStage = (Stage)updateCustAnchorPane.getScene().getWindow();
         currentStage.close();

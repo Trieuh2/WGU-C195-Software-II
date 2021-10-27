@@ -1,3 +1,10 @@
+/**
+ * This class allows the user to add a new Customer to the connected database by filling out form fields on the
+ * page.
+ *
+ * @author Henry Trieu
+ */
+
 package Scheduler.View_Controller;
 
 import Model.Customer;
@@ -15,7 +22,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -47,6 +53,10 @@ public class AddCustomerController implements Initializable {
     private final int loggedUserID;
     private String loggedUsername;
 
+    /**
+     * Retrieves the username of the currently logged user for auditing purposes.
+     * Preloads and preselects the country options within the page for adding a new Customer to the database.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
@@ -58,11 +68,20 @@ public class AddCustomerController implements Initializable {
         divisionMenu.setDisable(true);
     }
 
+    /**
+     * This is the constructor for this class.
+     *
+     * @param loggedUserID is used for tracking the current user logged in, which is used for auditing who added the Customer,
+     *                     and who last updated the Customer.
+     */
     public AddCustomerController(int loggedUserID) {
         this.loggedUserID = loggedUserID;
     }
 
-    // Pre-populates an un-taken customer ID
+    /**
+     * Pre-populates an un-taken customer ID by finding the current highest value associated with the Customer ID in the database
+     * and incrementing it by 1.
+     */
     private void prepopulateCustomerID() {
         try {
             int maxCustomerID = 1;
@@ -84,7 +103,9 @@ public class AddCustomerController implements Initializable {
         }
     }
 
-    // Pre-populates the country options into the menu box
+    /**
+     * Pre-populates the country options into the menu box
+     */
     private void prepopulateCountryOptions() {
         try {
             // DB Query
@@ -137,7 +158,9 @@ public class AddCustomerController implements Initializable {
         }
     }
 
-    // Pre-populates State and Division options based off the country selection
+    /**
+     * Pre-populates State and Division options based off the country selection
+     */
     private void prepopulateDivisionOptions() {
         // Query all the first level divisions from the DB
         try {
@@ -183,6 +206,10 @@ public class AddCustomerController implements Initializable {
         }
     }
 
+    /**
+     * Checks to ensure that all fields on the form have been field, assigns parsed values from the form to a temporary
+     * Customer object, and then adds the customer information to the database.
+     */
     @FXML
     private void addCustomer() {
         // Check to ensure that no values are unassigned
@@ -223,6 +250,11 @@ public class AddCustomerController implements Initializable {
         }
     }
 
+    /**
+     * Retrieves the username of the currently logged-in user for record adding purposes
+     *
+     * @return the username of the logged-in user based off the UserID passed through the constructor of this class.
+     */
     private String retrieveUsernameLoggedIn() {
         String username = "";
 
@@ -243,7 +275,12 @@ public class AddCustomerController implements Initializable {
         return username;
     }
 
-    // Checks to ensure that all fields on the form have been provided a value
+    /**
+     * Checks to see if all the fields on the form has been filled. The forms checked only apply to form fields that the
+     * end-user can provide a value to.
+     *
+     * @return if all forms on the field have been provided a value by the end-user.
+     */
     private boolean allFieldsFilled() {
         if(!custNameTextField.getText().isEmpty() &&
                 (!custAddressTextField.getText().isEmpty()) &&
@@ -257,7 +294,9 @@ public class AddCustomerController implements Initializable {
         }
     }
 
-    // Get values from the TextFields and store them in variables
+    /**
+     * Take values from the fields on the form and assign it to the Customer object associated with this class
+     */
     private void parseFormFields() {
         newCustomer.setName(custNameTextField.getText());
         newCustomer.setAddress(custAddressTextField.getText());
@@ -265,7 +304,9 @@ public class AddCustomerController implements Initializable {
         newCustomer.setPhoneNumber(custPhoneNumberTextField.getText());
     }
 
-    // Sets the 'created' and 'updated' fields in the Customer object
+    /**
+     * Sets the 'created' and 'updated' fields in the Customer object
+     */
     private void setAuditTimestamps() {
         SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -276,7 +317,9 @@ public class AddCustomerController implements Initializable {
         newCustomer.setLastUpdatedBy(loggedUsername);
     }
 
-    // Closes current scene and switches back to the main controller
+    /**
+     * Closes current scene and switches back to the main controller
+     */
     @FXML
     private void returnToMainController() {
         try {
@@ -298,7 +341,9 @@ public class AddCustomerController implements Initializable {
         }
     }
 
-    // Closes the current window
+    /**
+     * Closes the current window. This method is called within returnToMainController() as a helper function.
+     */
     private void closeCurrentWindow() {
         Stage currentStage = (Stage)addCustAnchorPane.getScene().getWindow();
         currentStage.close();
