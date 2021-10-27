@@ -1,3 +1,9 @@
+/**
+ * Represents a Customer with all the respective attributes that will be/has already been added to the database.
+ *
+ * @author Henry Trieu
+ */
+
 package Model;
 
 import helper.JDBC;
@@ -21,13 +27,19 @@ public class Customer {
     private String lastUpdate;
     private String lastUpdatedBy;
 
-    // Constructors
-    public Customer() {
+    //
 
-    }
-
-
-    // Constructor used for viewing the customers
+    /**
+     * Constructor used for displaying Customers in the ViewCustomerController Class. Within this constructor, the division
+     * name is also defined by identifying the name associated with the selected division ID.
+     *
+     * @param ID
+     * @param name
+     * @param address
+     * @param postalCode
+     * @param phoneNumber
+     * @param divisionID
+     */
     public Customer(int ID, String name, String address, String postalCode, String phoneNumber, int divisionID) {
         this.ID = ID;
         this.name = name;
@@ -123,7 +135,12 @@ public class Customer {
         return lastUpdatedBy;
     }
 
-    // Checks if the customer has any appointments associated
+    /**
+     * Checks if the customer has any appointments associated within the database.
+     *
+     * @return true if there are appointments associated with this Customer, false if there are no appointments associated
+     * with this Customer.
+     */
     public boolean hasAppointments() {
         boolean hasAppointments = false;
         try {

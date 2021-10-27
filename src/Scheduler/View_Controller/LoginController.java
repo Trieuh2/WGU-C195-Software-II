@@ -1,3 +1,9 @@
+/**
+ * This class allows the user to authenticate against the database using a username and password combination on the form.
+ *
+ * @author Henry Trieu
+ */
+
 package Scheduler.View_Controller;
 
 import helper.JDBC;
@@ -21,12 +27,10 @@ import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -49,6 +53,9 @@ public class LoginController implements Initializable {
     // Variable for tracking the user logged in
     private int loggedUserID;
 
+    /**
+     * This method opens a connection to the database and sets the location/language based on the end-user's machine.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         JDBC.openConnection();
@@ -59,6 +66,10 @@ public class LoginController implements Initializable {
         passwordTextField.setText("test");
     }
 
+    /**
+     * Sets the location and language of the application based on the end-user's machine. This method sets the language of
+     * the text labels in the login page to the respective language. This currently supports French and English.
+     */
     private void setZoneAndLanguage() {
         ZoneId zoneId = ZoneId.systemDefault();
         Locale locale = Locale.getDefault();
@@ -82,7 +93,11 @@ public class LoginController implements Initializable {
         languageLabel.setText(languageBundle.getString("language") + language);
     }
 
-    // Tests the inputted credentials to see if they are the correct credentials into the database
+    /**
+     * Tests the inputted credentials to see if they are the correct credentials into the database
+     *
+     * @throws IOException
+     */
     public void authorize() throws IOException {
         Locale locale = Locale.getDefault();
 
@@ -122,30 +137,12 @@ public class LoginController implements Initializable {
         }
     }
 
-    // Closes the login screen and switches to MainController where the appointment calendar is displayed
-    private void switchToMainController() throws IOException {
-        // Load the FXML file.
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
-        MainController controller = new MainController(loggedUserID, true);
-        loader.setController(controller);
-        Parent root = loader.load();
-
-        // Close the current window and build the MainController scene to display the appointment calendar
-        closeCurrentWindow();
-        Scene scene = new Scene(root);
-        Stage stage = new Stage();
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    // Closes the current window
-    private void closeCurrentWindow() {
-        Stage currentStage = (Stage)loginPrimaryAnchorPane.getScene().getWindow();
-        currentStage.close();
-    }
-
-    // Writes the login activity and result to the login_activity.txt file in the format below
-    // [Timestamp] UserName:''- LOGIN_SUCCESS/LOGIN_FAIL
+    /**
+     * Writes the login activity and result to the login_activity.txt file in the format:
+     * [Timestamp] UserName:''- LOGIN_SUCCESS/LOGIN_FAIL
+     *
+     * @param successfulLogin determines whether the method will append 'LOGIN_SUCCESS' or 'LOGIN_FAIL'
+     */
     private void recordLoginActivity(boolean successfulLogin) {
         FileOutputStream fileOutputStream = null;
 
@@ -197,5 +194,31 @@ public class LoginController implements Initializable {
                 System.out.println("Error closing filestream: " + e);
             }
         }
+    }
+
+    /**
+     * Closes current scene and switches to the main controller
+     */
+    private void switchToMainController() throws IOException {
+        // Load the FXML file.
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/MainController.fxml"));
+        MainController controller = new MainController(loggedUserID, true);
+        loader.setController(controller);
+        Parent root = loader.load();
+
+        // Close the current window and build the MainController scene to display the appointment calendar
+        closeCurrentWindow();
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    /**
+     * Closes the current window. This method is called within returnToMainController() as a helper function.
+     */
+    private void closeCurrentWindow() {
+        Stage currentStage = (Stage)loginPrimaryAnchorPane.getScene().getWindow();
+        currentStage.close();
     }
 }

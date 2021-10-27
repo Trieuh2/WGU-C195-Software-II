@@ -1,3 +1,8 @@
+/**
+ * This class provides a report displaying the schedule for a Contact based on the Contact selected via the drop-down menu on the page.
+ *
+ * @author Henry Trieu
+ */
 package Scheduler.View_Controller;
 
 import Model.Appointment;
@@ -5,19 +10,13 @@ import helper.JDBC;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
-
-import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,18 +44,21 @@ public class ContactScheduleReport implements Initializable {
     // Variable for tracking contact selected
     private int selectedContactID;
 
+    /**
+     * Initializes the accepted table column attributes and populates the selectable Contact options on the drop-down menu
+     * found on the page.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        setCellFactoryValues();
+        intializeTableColumns();
         loadContacts();
     }
 
-    public ContactScheduleReport() {
-
-    }
-
-    // Sets the column names and accepted property in the column
-    private void setCellFactoryValues() {
+    /**
+     * Sets the accepted attribute associated with each column on the table used to display the Appointment information
+     * associated with the Contact.
+     */
+    private void intializeTableColumns() {
         appointmentIdColumn.setCellValueFactory(new PropertyValueFactory<>("appointmentID"));
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
@@ -66,7 +68,9 @@ public class ContactScheduleReport implements Initializable {
         customerIdColumn.setCellValueFactory(new PropertyValueFactory<>("customerID"));
     }
 
-    // Loads the selectable Contacts that the report will be ran on
+    /**
+     * Loads the selectable Contacts that the report will be run on
+     */
     private void loadContacts() {
         try {
             // DB Query
@@ -104,7 +108,9 @@ public class ContactScheduleReport implements Initializable {
         }
     }
 
-    // Loads the Appointment schedule associated with the contact selected
+    /**
+     * Loads the Appointment schedule on the table associated with the contact selected
+     */
     private void loadAppointmentSchedule() {
         try {
             // DB Query

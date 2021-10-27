@@ -1,3 +1,10 @@
+/**
+ * This class is used to display all Customers that exist within the database. These customers can be selected to be then updated/deleted
+ * while on the form.
+ *
+ * @author Henry Trieu
+ */
+
 package Scheduler.View_Controller;
 import Model.Customer;
 import helper.JDBC;
@@ -46,6 +53,9 @@ public class ViewCustomerController implements Initializable {
     // Variable for tracking the user logged in
     private final int loggedUserID;
 
+    /**
+     * Initializes the properties associated with the Table displaying the Customers and then loads the Customers into the table.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         initializeTableColumns();
@@ -61,7 +71,9 @@ public class ViewCustomerController implements Initializable {
         this.loggedUserID = loggedUserID;
     }
 
-    // Add a listener to the tableView
+    /**
+     * Adds a listener to the table to handle hiding/displaying the edit customer and delete customer buttons.
+     */
     private void initializeTableViewListener() {
         customerTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if(newSelection != null) {
@@ -72,7 +84,9 @@ public class ViewCustomerController implements Initializable {
         });
     }
 
-    // Sets the column names and accepted property in the column
+    /**
+     * Sets the accepted attributes associated with the table columns used for displaying Customer information.
+     */
     private void initializeTableColumns() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("ID"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -82,7 +96,9 @@ public class ViewCustomerController implements Initializable {
         divisionColumn.setCellValueFactory(new PropertyValueFactory<>("divisionName"));
     }
 
-    // Fetches all the customers from the DB and loads it into the TableView
+    /**
+     * Fetches all the customers from the DB and loads it into the TableView
+     */
     private void loadCustomers() {
         // Clear the table and selection before loading/reloading customers into the table
         customerTableView.getItems().clear();
@@ -114,7 +130,9 @@ public class ViewCustomerController implements Initializable {
         }
     }
 
-    // Deletes the selected customer if there are no appointments
+    /**
+     * Deletes the selected Customer if the Customer does not have any Appointments associated.
+     */
     @FXML
     private void deleteCustomer() {
         // Only delete the customer if the customer does not have an appointment
@@ -151,13 +169,29 @@ public class ViewCustomerController implements Initializable {
         }
     }
 
-    // Closes the current window
-    private void closeCurrentWindow() {
-        Stage currentStage = (Stage)viewCustomerAnchorPane.getScene().getWindow();
-        currentStage.close();
+    /**
+     * Closes the page and switches to the UpdateCustomerController screen where the customer's information can be updated
+     */
+    @FXML
+    private void switchToUpdateCustomerController() throws IOException {
+        // Load the FXML file.
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/UpdateCustomerController.fxml"));
+        UpdateCustomerController controller = new UpdateCustomerController(selectedCustomer, loggedUserID);
+        loader.setController(controller);
+        Parent root = loader.load();
+
+        // Close the current window and build the UpdateCustomerController scene
+        closeCurrentWindow();
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
     }
 
-    // Closes the screen and switches to MainController where the appointment calendar is displayed
+
+    /**
+     * Closes current scene and switches back to the main controller
+     */
     @FXML
     private void switchToMainController() throws IOException {
         // Load the FXML file.
@@ -174,20 +208,11 @@ public class ViewCustomerController implements Initializable {
         stage.show();
     }
 
-    // Closes the screen and switches to the UpdateCustomerController screen where the customer's information can be updated
-    @FXML
-    private void switchToUpdateCustomerController() throws IOException {
-        // Load the FXML file.
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/UpdateCustomerController.fxml"));
-        UpdateCustomerController controller = new UpdateCustomerController(selectedCustomer, loggedUserID);
-        loader.setController(controller);
-        Parent root = loader.load();
-
-        // Close the current window and build the UpdateCustomerController scene
-        closeCurrentWindow();
-        Scene scene = new Scene(root);
-        Stage stage = new Stage();
-        stage.setScene(scene);
-        stage.show();
+    /**
+     * Closes the current window. This method is called within returnToMainController() as a helper function.
+     */
+    private void closeCurrentWindow() {
+        Stage currentStage = (Stage)viewCustomerAnchorPane.getScene().getWindow();
+        currentStage.close();
     }
 }

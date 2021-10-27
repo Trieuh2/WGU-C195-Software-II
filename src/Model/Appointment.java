@@ -1,3 +1,9 @@
+/**
+ * Represents an appointment with all the respective attributes that will be/has already been added to the database.
+ *
+ * @author Henry Trieu
+ */
+
 package Model;
 
 import helper.JDBC;
@@ -39,11 +45,29 @@ public class Appointment {
     private ZonedDateTime utcZonedDateTimeEnd;
     private String utcEndTimestamp;
 
-    // Constructors
+    /**
+     * Default constructor. This does not initialize any values by default.
+     */
     public Appointment() {
 
     }
 
+    /**
+     * This is the overloaded constructor used to represent Appointments as they exist in the database. This constructor
+     * is particularly used in containing retrieved Appointment information from the database and then used to display
+     * them in a table later.
+     *
+     * @param appointmentID is the unique ID associated with the Appointment.
+     * @param title is the name of the Appointment.
+     * @param description provides a brief written representation of the event.
+     * @param location is where the Appointment is taking place.
+     * @param type categorizes the Appointment based on characteristics of the event.
+     * @param utcStartTimestamp is the timestamp of the start of the event in UTC timezone.
+     * @param utcEndTimestamp is the timestamp of the start of the event in UTC timezone.
+     * @param customerID is the unique ID associated with the customer that is attending the Appointment.
+     * @param userID is the unique ID associated with the user that is attending the Appointment.
+     * @param contactID is the unique associated with the internal organization contact that is attending the Appointment.
+     */
     public Appointment(int appointmentID, String title, String description, String location,
                        String type, String utcStartTimestamp, String utcEndTimestamp, int customerID, int userID, int contactID) {
         // Set object variables
@@ -180,6 +204,18 @@ public class Appointment {
         this.type = type;
     }
 
+    /**
+     * Sets the start of the Appointment in the form of a ZonedDateTime in both local time associated with the end-user's machine
+     * (used for displaying information for the end-user) and also in UTC (used for storing information on the database).
+     * This method also calls the setStartTimestamps() method which defines the Appointment start time timestamp in local and UTC time.
+     *
+     * @param year is the year that the Appointment starts on.
+     * @param month is the month that the Appointment starts on.
+     * @param dayOfMonth is the day that the Appointment starts on.
+     * @param hour is the hour that the Appointment starts on.
+     * @param minute is the minute that the Appointment starts on.
+     * @param second is the that the Appointment starts on.
+     */
     public void setStartZDTs(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
         this.localZonedDateTimeStart = localDateTime.atZone(ZoneId.systemDefault());
@@ -187,6 +223,9 @@ public class Appointment {
         setStartTimestamps();
     }
 
+    /**
+     * Sets the local and UTC timestamp of the start of the Appointment in the format accepted by the database.
+     */
     public void setStartTimestamps() {
         DateTimeFormatter utcDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter localDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a");
@@ -194,6 +233,18 @@ public class Appointment {
         this.localStartTimestamp = localDateTimeFormatter.format(localZonedDateTimeStart);
     }
 
+    /**
+     * Sets the end of the Appointment in the form of a ZonedDateTime in both local time associated with the end-user's machine
+     * (used for displaying information for the end-user) and also in UTC (used for storing information on the database).
+     * This method also calls the setEndTimestamps() method which defines the Appointment start time timestamp in local and UTC time.
+     *
+     * @param year is the year that the Appointment ends on.
+     * @param month is the month that the Appointment ends on.
+     * @param dayOfMonth is the day that the Appointment ends on.
+     * @param hour is the hour that the Appointment ends on.
+     * @param minute is the minute that the Appointment ends on.
+     * @param second is the second that the Appointment ends on.
+     */
     public void setEndZDTs(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         LocalDateTime localDateTime = LocalDateTime.of(year, month, dayOfMonth, hour, minute, second);
         this.localZonedDateTimeEnd = localDateTime.atZone(ZoneId.systemDefault());
@@ -201,6 +252,9 @@ public class Appointment {
         setEndTimestamps();
     }
 
+    /**
+     * Sets the local and UTC timestamp of the end of the Appointment in the format accepted by the database.
+     */
     public void setEndTimestamps() {
         DateTimeFormatter utcDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter localDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd h:mm a");
@@ -228,6 +282,11 @@ public class Appointment {
         this.customerID = customerID;
     }
 
+    /**
+     * Sets the name of the Customer that is attending the Appointment, identified by the customerID.
+     *
+     * @param customerID is the unique ID associated with the Customer that is attending the Appointment.
+     */
     public void setCustomerName(int customerID) {
         try {
             String query = "SELECT Customer_Name FROM customers WHERE Customer_ID = " + customerID;
@@ -251,6 +310,11 @@ public class Appointment {
         this.contactID = contactID;
     }
 
+    /**
+     * Sets the name of the Contact that is attending the Appointment, identified by the contactID.
+     *
+     * @param contactID is the unique ID associated with the Contact that is attending the Appointment.
+     */
     public void setContactName(int contactID) {
         try {
             String query = "SELECT Contact_Name FROM contacts WHERE Contact_ID = " + contactID;
@@ -266,6 +330,11 @@ public class Appointment {
         }
     }
 
+    /**
+     * Compares if the selected start time of the Appointment occurs after the current time on the end-user's machine.
+     *
+     * @return true if the start time occurs after the current time and false if the start time occurs before the current time.
+     */
     // Checks if the start time of the Appointment is taking place in the future
     public boolean startTimeInFuture() {
         boolean startsInFuture = false;
@@ -280,6 +349,11 @@ public class Appointment {
         return startsInFuture;
     }
 
+    /**
+     * Compares if the selected end time of the Appointment occurs after the requested appointment start time.
+     *
+     * @return true if the end time occurs after the appointment start time and false if the end time occurs before the start time.
+     */
     // Checks if the end time of the Appointment is taking place after the startTime
     public boolean endTimeAfterStartTime() {
         boolean validEndTime = false;
@@ -291,10 +365,14 @@ public class Appointment {
         return validEndTime;
     }
 
-    // Checks to ensure that the start and end time of the Appointment is within the business hours of
-    // 8am - 10pm EST
-    // 5am - 7pm PST
-    // 12pm - 2am (next day) UTC
+    /**
+     * Checks to see if the requested start time and end times of the Appointment occur within the business hours defined as:
+     * 8AM - 10PM EST. Business hours are stored in a ZonedDateTime using the EST zone and then converted to UTC to perform
+     * comparison operations against the requested appointment start and end times.
+     *
+     * @return true if both the start and end times are within business hours OR false if both the start and end times
+     * are NOT within the defined business hours.
+     */
     public boolean isWithinBusinessHours() {
         boolean validHours = false;
 
@@ -319,7 +397,12 @@ public class Appointment {
         return validHours;
     }
 
-    // Checks to see if the start time and end time is overlapping with an appointment associated with the customer selected
+    /**
+     * Checks to see if the requested appointment start and end times overlap with an appointment associated with the customer selected.
+     *
+     * @return true if the requested appointment start and end times cause a conflict in schedule for the selected customer OR
+     * false if the requested times are valid.
+     */
     public boolean customerOverlappingAppt() {
         boolean overlap = false;
 

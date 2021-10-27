@@ -1,3 +1,11 @@
+/**
+ * This class represents the main page that displays the Appointments on a monthly/weekly basis. This page is also used as
+ * a hub to move to different pages associated with the actions of adding a customer, adding an appointment, viewing customers,
+ * and running reports.
+ *
+ * @author Henry Trieu
+ */
+
 package Scheduler.View_Controller;
 
 import Model.Appointment;
@@ -12,7 +20,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -64,20 +71,37 @@ public class MainController implements Initializable {
     ZonedDateTime startRange;
     ZonedDateTime endRange;
 
+    /**
+     * Initializes the table properties used to display the Appointments and also performs a check to alert the logged-user
+     * if there is an upcoming Appointment within 15 minutes of logging in. By default, the application will view the
+     * appointments on a monthly view but radio buttons are provided to switch between the weekly/monthly view.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        setCellFactoryValues();
+        initializeTableColumns();
         initializeTableView();
         initializeRadioButtons();
         welcomeAlertDialog();
         monthlyWeeklyToggleGroup.selectToggle(monthlyRadioButton);
     }
 
+    /**
+     * Constructor for this MainController class.
+     *
+     * @param loggedUserID is used to track the user logged into the Scheduler application. This is later used to pass into
+     *                     other classes that audit the creation/update of a Customer/Appointment object in the database.
+     * @param accessedViaLogin is a flag used to check whether this Main Controller page was accessed via the login page. If
+     *                         this Main Controller was accessed via the Login page, then the alert check would be run.
+     */
     public MainController(int loggedUserID, boolean accessedViaLogin) {
         this.loggedUserID = loggedUserID;
         this.accessedViaLogin = accessedViaLogin;
     }
 
+    /**
+     * Sets the text of the label to represent the month and year of Appointments being viewed. By default, the user should
+     * land on the page viewing the current month and year.
+     */
     private void loadMonthYearLabel() {
         switch (startRange.getMonth().getValue()) {
             case 1: monthWeekLabel.setText("January " + startRange.getYear());
@@ -107,6 +131,9 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Sets the text of the Appointment viewing range to be within a week.
+     */
     private void loadWeekRangeLabel() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yy");
 
@@ -116,6 +143,10 @@ public class MainController implements Initializable {
         monthWeekLabel.setText("Week " + startWeek + " to " + endWeek);
     }
 
+    /**
+     * Loads the Appointments into the table based on the start range and end range values which define the period of time
+     * to display the Appointments.
+     */
     private void loadAppointments() {
         // Clear the table and selection before loading/reloading Appointments into the table
         appointmentTableView.getItems().clear();
@@ -158,6 +189,10 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Initializes properties of the TableView to handle the hiding/displaying of the update Appointment and delete Appointment buttons
+     * based on whether an Appointment has been selected from the table.
+     */
     private void initializeTableView() {
         // Add a listener to the Appointment TableView
         appointmentTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -171,6 +206,9 @@ public class MainController implements Initializable {
         initializeTableViewRange();
     }
 
+    /**
+     * Initializes the start range and end range of Appointments being displayed based on the end-user's current time.
+     */
     private void initializeTableViewRange() {
         LocalDateTime startOfCurrentMonth = LocalDateTime.of(Year.now().getValue(), YearMonth.now().getMonthValue(), 1, 0, 0);
         this.startRange = startOfCurrentMonth.atZone(ZoneId.systemDefault());
@@ -179,6 +217,10 @@ public class MainController implements Initializable {
         this.endRange = endOfCurrentMonth.atZone(ZoneId.systemDefault());
     }
 
+    /**
+     * Groups the monthly and weekly radio buttons to work together in a toggle group and also defines the behavior of the
+     * radio buttons when they are selected.
+     */
     private void initializeRadioButtons() {
         // Group the RadioButtons so only one can be selected at a time
         monthlyWeeklyToggleGroup = new ToggleGroup();
@@ -215,7 +257,10 @@ public class MainController implements Initializable {
         });
     }
 
-    private void setCellFactoryValues() {
+    /**
+     * Configures the accepted attributes associated with the table columns used to display Appointment information
+     */
+    private void initializeTableColumns() {
         appointmentIdColumn.setCellValueFactory(new PropertyValueFactory<>("appointmentID"));
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -228,6 +273,10 @@ public class MainController implements Initializable {
         userIdColumn.setCellValueFactory(new PropertyValueFactory<>("userID"));
     }
 
+    /**
+     * Increments the start range and end range of Appointment viewing, respectively dependent on the radio button selection (+1 week
+     *  or +1 month).
+     */
     @FXML
     private void incrementViewRange() {
         if(monthlyWeeklyToggleGroup.getSelectedToggle() == monthlyRadioButton) {
@@ -250,6 +299,10 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Decrements the start range and end range of Appointment viewing, respectively dependent on the radio button selection (-1 week
+     *  or -1 month).
+     */
     @FXML
     private void decrementViewRange() {
         if(monthlyWeeklyToggleGroup.getSelectedToggle() == monthlyRadioButton) {
@@ -272,8 +325,10 @@ public class MainController implements Initializable {
         }
     }
 
-    // Provides an alert when there is an appointment within 15 minutes of the user's log-in
-    // If there are no appointments within 15 minutes of logging in, a message will indicate there are no upcoming appointments.
+    /**
+     * Provides an alert when there is an appointment within 15 minutes of the user's log-in.
+     * If there are no appointments within 15 minutes of logging in, a message will indicate there are no upcoming appointments.
+     */
     private void welcomeAlertDialog() {
         if(accessedViaLogin) {
             LocalDateTime now = LocalDateTime.now();
@@ -342,6 +397,10 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Switches to the page for updating the selected Appointment. All original values associated with the selected Appointment
+     * will appear on the update form.
+     */
     @FXML
     private void updateAppointment() throws IOException{
         // Load the FXML file.
@@ -358,6 +417,9 @@ public class MainController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Deletes the selected Appointment from the database.
+     */
     @FXML
     private void deleteAppointment() {
         try {
@@ -384,14 +446,20 @@ public class MainController implements Initializable {
         }
     }
 
-    // Closes the current window
+    /**
+     * Closes the current window. This method is called within returnToMainController() as a helper function.
+     */
     private void closeCurrentWindow() {
         Stage currentStage = (Stage)mainAnchorPane.getScene().getWindow();
         currentStage.close();
     }
 
-    // Closes the main page and switches to the controller where the user is prompted to fill out information to
-    // add a new user.
+
+
+    /**
+     * Closes the main page and switches to the controller where the user is prompted to fill out information to
+     * add a new user.
+     */
     @FXML
     private void switchToAddCustomerController() throws IOException {
         // Load the FXML file.
@@ -408,7 +476,11 @@ public class MainController implements Initializable {
         stage.show();
     }
 
-    // Closes the main page and switches to the controller where the user can view all the customers
+
+
+    /**
+     * Closes the main page and switches to the controller where the user can view all the customers
+     */
     @FXML
     private void switchToViewCustomerController() throws IOException {
         // Load the FXML file.
@@ -425,7 +497,11 @@ public class MainController implements Initializable {
         stage.show();
     }
 
-    // Closes the main page and switches to the controller where the user can add a new appointment
+
+
+    /**
+     * Closes the main page and switches to the controller where the user can add a new appointment
+     */
     @FXML
     private void switchToAddAppointmentController() throws IOException {
         // Load the FXML file.
@@ -442,6 +518,10 @@ public class MainController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Opens a Selected Contact-based report on top of the current page that displays a schedule associated with a selected
+     *  Contact on the report page.
+     */
     @FXML
     private void switchToContactReportController() throws IOException {
         // Load the FXML file.
@@ -458,6 +538,10 @@ public class MainController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Opens a Type/Month-based report on top of the current page that provides statistical analysis of Appointment frequencies
+     * sorted by unique 'Type's and number of Appointments within a month.
+     */
     @FXML
     private void switchToTypeMonthReportController() throws IOException {
         // Load the FXML file.

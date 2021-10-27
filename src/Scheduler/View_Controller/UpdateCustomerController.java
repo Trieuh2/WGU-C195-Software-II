@@ -1,3 +1,11 @@
+/**
+ * This class allows the user to update an existing Customer on the connected database by filling out form fields on the
+ * page. When the page first loads, it will display the current values associated with the Customer. The form is
+ * nearly identical to the AddCustomerController form.
+ *
+ * @author Henry Trieu
+ */
+
 package Scheduler.View_Controller;
 import Model.Customer;
 import helper.JDBC;

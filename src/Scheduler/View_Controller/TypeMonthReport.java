@@ -1,3 +1,10 @@
+/**
+ * This class generates a report displayed on a grid-like table based on the number of Appointments associated with each
+ * particular discovered Type and also a report based on the number of Appointments occurring in each month.
+ *
+ * @author Henry Trieu
+ */
+
 package Scheduler.View_Controller;
 import helper.JDBC;
 import javafx.fxml.FXML;
@@ -18,17 +25,20 @@ public class TypeMonthReport implements Initializable {
     @FXML GridPane typeReportGridPane;
     @FXML GridPane monthReportGridPane;
 
+    /**
+     * Calls the methods to load the report by Type and load another report based on month.
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         loadTypeReport();
         loadMonthReport();
     }
 
-    public TypeMonthReport() {
-
-    }
-
     // Loads the report filtered by type
+
+    /**
+     * Discovers and counts the number of occurrences for each unique 'Type' of Appointment and displays it on the grid-like table
+     */
     private void loadTypeReport() {
         ArrayList<String> uniqueAppointmentTypes = new ArrayList<String>();
         ArrayList<Integer> appointmentTypeQuantity = new ArrayList<Integer>();
@@ -85,7 +95,9 @@ public class TypeMonthReport implements Initializable {
         }
     }
 
-    // Loads the report filtered by month
+    /**
+     * Discovers the number of Appointments occurring each month and displays it on the grid-like table.
+     */
     private void loadMonthReport() {
         ArrayList<Integer> quantityByMonth = new ArrayList<Integer>();
 
