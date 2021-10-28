@@ -87,7 +87,7 @@ public class LoginController implements Initializable {
     /**
      * Tests the inputted credentials to see if they are the correct credentials into the database
      *
-     * @throws IOException
+     * @throws IOException to handle scenario of no value provided into TextFields
      */
     public void authorize() throws IOException {
         Locale locale = Locale.getDefault();

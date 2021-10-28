@@ -38,12 +38,12 @@ public class Customer {
      * Constructor used for displaying Customers in the ViewCustomerController Class. Within this constructor, the division
      * name is also defined by identifying the name associated with the selected division ID.
      *
-     * @param ID
-     * @param name
-     * @param address
-     * @param postalCode
-     * @param phoneNumber
-     * @param divisionID
+     * @param ID is the unique ID of the Customer, used for identification.
+     * @param name is the name of the Customer.
+     * @param address is the address of the Customer.
+     * @param postalCode is the postal code of the Customer.
+     * @param phoneNumber is the phone number of the Customer.
+     * @param divisionID is the division ID of the Customer, used to identify where the Customer lives.
      */
     public Customer(int ID, String name, String address, String postalCode, String phoneNumber, int divisionID) {
         this.ID = ID;
