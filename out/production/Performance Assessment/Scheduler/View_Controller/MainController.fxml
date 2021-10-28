@@ -35,7 +35,7 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="apptActivityLogButton" mnemonicParsing="false" onAction="#switchToAppointmentActivityController" text="Appointment Activity Log" textAlignment="CENTER" wrapText="true">
+            <Button fx:id="apptActivityLogButton" mnemonicParsing="false" onAction="#switchToAppointmentActivityController" text="Appointment Activity Report" textAlignment="CENTER" wrapText="true">
                <VBox.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
