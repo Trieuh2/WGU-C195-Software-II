@@ -20,7 +20,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -199,7 +198,7 @@ public class MainController implements Initializable {
      * based on whether an Appointment has been selected from the table.
      */
     private void initializeTableView() {
-        // Add a listener to the Appointment TableView
+        // Lambda expression to handle the behavior of displaying the update/delete buttons only when an Appointment is selected.
         appointmentTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if(newSelection != null) {
                 selectedAppointment = (Appointment) appointmentTableView.getSelectionModel().getSelectedItem();
@@ -232,10 +231,11 @@ public class MainController implements Initializable {
         monthlyRadioButton.setToggleGroup(monthlyWeeklyToggleGroup);
         weeklyRadioButton.setToggleGroup(monthlyWeeklyToggleGroup);
 
-        // listen to changes in selected toggle
+        // Adds a listener to the radio button toggles to handle the behavior of switching between each view. The
+        // listener's behavior upon recognizing a different selection in the toggle group is defined within the lambda expression.
         monthlyWeeklyToggleGroup.selectedToggleProperty().addListener((observable, oldVal, newVal) -> {
-            if(monthlyWeeklyToggleGroup.getSelectedToggle() == monthlyRadioButton) {
-                // Re-define the range of the TableView
+            if(newVal == monthlyRadioButton) {
+                // Re-define the range of the TableView to a monthly basis
                 int lengthOfStartMonth = YearMonth.of(startRange.getYear(), startRange.getMonth()).lengthOfMonth();
                 LocalDateTime newStartRange = LocalDateTime.of(startRange.getYear(), startRange.getMonthValue(), 1, 0, 0);
                 LocalDateTime newEndRange = LocalDateTime.of(startRange.getYear(), startRange.getMonthValue(), lengthOfStartMonth, 0, 0);
@@ -243,19 +243,19 @@ public class MainController implements Initializable {
                 this.startRange = newStartRange.atZone(ZoneId.systemDefault());
                 this.endRange = newEndRange.atZone(ZoneId.systemDefault());
 
-                // Update the text label and load the appointments
+                // Update the text label to the month being viewed and load the appointments
                 loadMonthYearLabel();
                 loadAppointments();
             }
-            else if(monthlyWeeklyToggleGroup.getSelectedToggle() == weeklyRadioButton) {
-                // Re-define the range of the TableView
+            else if(newVal == weeklyRadioButton) {
+                // Re-define the range of the TableView to a weekly basis
                 LocalDateTime newStartRange = LocalDateTime.of(startRange.getYear(), startRange.getMonthValue(), 1, 0, 0);
                 LocalDateTime newEndRange = LocalDateTime.of(startRange.getYear(), startRange.getMonthValue(), 7, 0, 0);
 
                 this.startRange = newStartRange.atZone(ZoneId.systemDefault());
                 this.endRange = newEndRange.atZone(ZoneId.systemDefault());
 
-                // Update the text label and load the appointments
+                // Update the text label to the week being viewed and load the appointments
                 loadWeekRangeLabel();
                 loadAppointments();
             }
@@ -472,11 +472,11 @@ public class MainController implements Initializable {
             // Retrieve the current timestamp in UTC
             LocalDateTime now = LocalDateTime.now();
             ZonedDateTime utcTime = now.atZone(ZoneId.of("UTC"));
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'['yyyy-MM-dd HH:mm:ss']'");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             timestamp = formatter.format(utcTime);
 
             // Concatenate the pieces of the appointment activity that will be recorded in the text file
-            String record = timestamp + " (Appointment ID: " + appointmentId + ") - Title:'" + appointmentTitle + "', DELETED.\n";
+            String record = timestamp + "," + appointmentId + "," + appointmentTitle + ",DELETED\n";
 
             // Write to the text file
             fileOutputStream.write(record.getBytes(StandardCharsets.UTF_8));

@@ -481,11 +481,11 @@ public class AddAppointmentController implements Initializable {
             // Retrieve the current timestamp in UTC
             LocalDateTime now = LocalDateTime.now();
             ZonedDateTime utcTime = now.atZone(ZoneId.of("UTC"));
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'['yyyy-MM-dd HH:mm:ss']'");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             timestamp = formatter.format(utcTime);
 
             // Concatenate the pieces of the appointment activity that will be recorded in the text file
-            String record = timestamp + " (Appointment ID: " + appointmentId + ") - '" + appointmentTitle + "', CREATED.\n";
+            String record = timestamp + "," + appointmentId + "," + appointmentTitle + ",CREATED\n";
 
             // Write to the text file
             fileOutputStream.write(record.getBytes(StandardCharsets.UTF_8));

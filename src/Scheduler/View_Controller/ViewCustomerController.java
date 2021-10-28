@@ -72,7 +72,7 @@ public class ViewCustomerController implements Initializable {
     }
 
     /**
-     * Adds a listener to the table to handle hiding/displaying the edit customer and delete customer buttons.
+     * Adds a listener to the table via a Lambda expression to handle hiding/displaying the edit customer and delete customer buttons.
      */
     private void initializeTableViewListener() {
         customerTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {

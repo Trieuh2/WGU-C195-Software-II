@@ -60,10 +60,6 @@ public class LoginController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         JDBC.openConnection();
         setZoneAndLanguage();
-
-        // TODO: Remove on final commit
-        usernameTextField.setText("test");
-        passwordTextField.setText("test");
     }
 
     /**
@@ -71,21 +67,16 @@ public class LoginController implements Initializable {
      * the text labels in the login page to the respective language. This currently supports French and English.
      */
     private void setZoneAndLanguage() {
+        // Get the end-user's current zone and language settings
         ZoneId zoneId = ZoneId.systemDefault();
         Locale locale = Locale.getDefault();
-
-        // PRODUCTION CODE
         String location = zoneId.systemDefault().toString();
         String language = locale.getDefault().getDisplayLanguage();
-
-        // TODO: TEST FRENCH AND REMOVE ON FINAL COMMIT
-        // Locale locale = Locale.FRANCE;
-        // String location = "France";
-        // String language = "French";
 
         // Set language based on location
         ResourceBundle languageBundle = ResourceBundle.getBundle("Scheduler/View_Controller/Login", locale);
 
+        // Update the text on the login form to the respective language associated with the end-user's machine
         loginTitleLabel.setText(languageBundle.getString("loginTitle"));
         usernameLabel.setText(languageBundle.getString("username"));
         passwordLabel.setText(languageBundle.getString("password"));
@@ -100,11 +91,6 @@ public class LoginController implements Initializable {
      */
     public void authorize() throws IOException {
         Locale locale = Locale.getDefault();
-
-        // TODO: TEST FRENCH AND REMOVE ON FINAL COMMIT
-        // Testing French
-        // Locale locale = Locale.FRANCE;
-
         ResourceBundle languageBundle = ResourceBundle.getBundle("Scheduler/View_Controller/Login", locale);
 
         // Check if one of the username or password fields are empty
