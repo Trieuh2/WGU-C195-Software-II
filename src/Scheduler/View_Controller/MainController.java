@@ -20,8 +20,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -440,9 +445,58 @@ public class MainController implements Initializable {
             Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
             stage.setAlwaysOnTop(true);
             alert.show();
+
+            // Record this deletion activity within the appointment_activity.txt file
+            recordAppointmentActivity();
         }
         catch(SQLException e) {
             System.out.println("There was an error deleting the appointment from the database.");
+        }
+    }
+
+    /**
+     * Records the delete action of the Appointment within the appointment_activity.txt file which is used for displaying a
+     * report from within the main controller.
+     */
+    private void recordAppointmentActivity() {
+        FileOutputStream fileOutputStream = null;
+
+        try {
+            fileOutputStream = new FileOutputStream(new File("appointment_activity.txt"), true);
+
+            // Pieces to the activity log
+            String timestamp;
+            int appointmentId = selectedAppointment.getAppointmentID();
+            String appointmentTitle = selectedAppointment.getTitle();
+
+            // Retrieve the current timestamp in UTC
+            LocalDateTime now = LocalDateTime.now();
+            ZonedDateTime utcTime = now.atZone(ZoneId.of("UTC"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'['yyyy-MM-dd HH:mm:ss']'");
+            timestamp = formatter.format(utcTime);
+
+            // Concatenate the pieces of the appointment activity that will be recorded in the text file
+            String record = timestamp + " (Appointment ID: " + appointmentId + ") - Title:'" + appointmentTitle + "', DELETED.\n";
+
+            // Write to the text file
+            fileOutputStream.write(record.getBytes(StandardCharsets.UTF_8));
+        }
+        catch(FileNotFoundException e) {
+            System.out.println("appointment_activity.txt not found" + e);
+        }
+        catch(IOException e) {
+            System.out.println("Exception writing to appointment_activity.txt" + e);
+        }
+        finally {
+            // Close the file stream
+            try {
+                if(fileOutputStream != null) {
+                    fileOutputStream.close();
+                }
+            }
+            catch(IOException e) {
+                System.out.println("Error closing filestream: " + e);
+            }
         }
     }
 
@@ -453,8 +507,6 @@ public class MainController implements Initializable {
         Stage currentStage = (Stage)mainAnchorPane.getScene().getWindow();
         currentStage.close();
     }
-
-
 
     /**
      * Closes the main page and switches to the controller where the user is prompted to fill out information to
@@ -547,6 +599,26 @@ public class MainController implements Initializable {
         // Load the FXML file.
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/TypeMonthReport.fxml"));
         TypeMonthReport controller = new TypeMonthReport();
+        loader.setController(controller);
+        Parent root = loader.load();
+
+        // Build the report scene and display it
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.setAlwaysOnTop(true);
+        stage.show();
+    }
+
+    /**
+     * Opens a Type/Month-based report on top of the current page that provides statistical analysis of Appointment frequencies
+     * sorted by unique 'Type's and number of Appointments within a month.
+     */
+    @FXML
+    private void switchToAppointmentActivityController() throws IOException {
+        // Load the FXML file.
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Scheduler/View_Controller/AppointmentActivityController.fxml"));
+        AppointmentActivityController controller = new AppointmentActivityController();
         loader.setController(controller);
         Parent root = loader.load();
 

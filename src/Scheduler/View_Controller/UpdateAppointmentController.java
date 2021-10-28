@@ -21,13 +21,19 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -345,6 +351,9 @@ public class UpdateAppointmentController implements Initializable {
                                 Statement st = JDBC.connection.createStatement();
                                 st.executeUpdate(update);
 
+                                // Record this update action within the appointment_activity.txt log
+                                recordAppointmentActivity();
+
                                 returnToMainController();
                             }
                             catch(SQLException e) {
@@ -465,6 +474,52 @@ public class UpdateAppointmentController implements Initializable {
         }
 
         return username;
+    }
+
+    /**
+     * Records the update action of the Appointment within the appointment_activity.txt file which is used for displaying a
+     * report from within the main controller.
+     */
+    private void recordAppointmentActivity() {
+        FileOutputStream fileOutputStream = null;
+
+        try {
+            fileOutputStream = new FileOutputStream(new File("appointment_activity.txt"), true);
+
+            // Pieces to the activity log
+            String timestamp;
+            int appointmentId = selectedAppointment.getAppointmentID();
+            String appointmentTitle = selectedAppointment.getTitle();
+
+            // Retrieve the current timestamp in UTC
+            LocalDateTime now = LocalDateTime.now();
+            ZonedDateTime utcTime = now.atZone(ZoneId.of("UTC"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'['yyyy-MM-dd HH:mm:ss']'");
+            timestamp = formatter.format(utcTime);
+
+            // Concatenate the pieces of the appointment activity that will be recorded in the text file
+            String record = timestamp + " (Appointment ID: " + appointmentId + ") - Title:'" + appointmentTitle + "', UPDATED.\n";
+
+            // Write to the text file
+            fileOutputStream.write(record.getBytes(StandardCharsets.UTF_8));
+        }
+        catch(FileNotFoundException e) {
+            System.out.println("appointment_activity.txt not found" + e);
+        }
+        catch(IOException e) {
+            System.out.println("Exception writing to appointment_activity.txt" + e);
+        }
+        finally {
+            // Close the file stream
+            try {
+                if(fileOutputStream != null) {
+                    fileOutputStream.close();
+                }
+            }
+            catch(IOException e) {
+                System.out.println("Error closing filestream: " + e);
+            }
+        }
     }
 
     /**

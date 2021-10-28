@@ -27,7 +27,12 @@ public class Customer {
     private String lastUpdate;
     private String lastUpdatedBy;
 
-    //
+    /**
+     * Default constructor
+     */
+    public Customer() {
+
+    }
 
     /**
      * Constructor used for displaying Customers in the ViewCustomerController Class. Within this constructor, the division
