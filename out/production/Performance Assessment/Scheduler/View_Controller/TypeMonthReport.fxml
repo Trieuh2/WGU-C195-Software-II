@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="630.0" prefWidth="535.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox alignment="TOP_CENTER" layoutX="14.0" layoutY="14.0" prefHeight="608.0" prefWidth="774.0">
+         <children>
+            <Label text="Report by Month/Type" underline="true">
+               <font>
+                  <Font size="24.0" />
+               </font></Label>
+            <HBox alignment="CENTER" prefHeight="574.0" prefWidth="774.0">
+               <children>
+                  <VBox fx:id="typeReportVBox" alignment="TOP_CENTER" prefHeight="100.0" prefWidth="328.0">
+                     <HBox.margin>
+                        <Insets right="100.0" />
+                     </HBox.margin>
+                     <children>
+                        <Label text="Type Report" underline="true">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <HBox alignment="CENTER">
+                           <children>
+                              <Label text="Type" underline="true">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets right="230.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <Label text="Quantity" textAlignment="RIGHT" underline="true">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <GridPane fx:id="typeReportGridPane" gridLinesVisible="true">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="283.0" minWidth="10.0" prefWidth="267.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="158.0" minWidth="10.0" prefWidth="61.0" />
+                          </columnConstraints>
+                        </GridPane>
+                     </children>
+                  </VBox>
+                  <VBox fx:id="monthReportVBox" alignment="TOP_CENTER" prefHeight="567.0" prefWidth="295.0">
+                     <children>
+                        <Label text="Month Report" underline="true">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <HBox alignment="CENTER" prefHeight="22.0" prefWidth="364.0">
+                           <children>
+                              <Label text="Month" underline="true">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets right="185.0" />
+                                 </HBox.margin></Label>
+                              <Label text="Quantity" underline="true">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font></Label>
+                           </children>
+                        </HBox>
+                        <GridPane fx:id="monthReportGridPane" gridLinesVisible="true">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="292.0" minWidth="10.0" prefWidth="254.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="182.0" minWidth="10.0" prefWidth="110.0" />
+                          </columnConstraints>
+                        </GridPane>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

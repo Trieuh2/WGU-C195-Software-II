@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane fx:id="mainAnchorPane" prefHeight="587.0" prefWidth="1231.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox alignment="TOP_CENTER" layoutX="17.0" layoutY="14.0" prefHeight="549.0" prefWidth="1198.0">
+         <children>
+            <Label text="Contact Schedule Report" underline="true">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+            <HBox alignment="TOP_CENTER" prefWidth="972.0">
+               <children>
+                  <MenuButton fx:id="contactMenuButton" alignment="CENTER" mnemonicParsing="false" prefHeight="25.0" prefWidth="157.0" text="Contact" wrapText="true">
+                     <HBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" />
+                     </HBox.margin>
+                  </MenuButton>
+                  <TableView fx:id="appointmentTableView" prefHeight="532.0" prefWidth="991.0">
+                    <columns>
+                      <TableColumn fx:id="appointmentIdColumn" prefWidth="147.0" text="Appointment ID" />
+                      <TableColumn fx:id="titleColumn" prefWidth="121.0" text="Title" />
+                        <TableColumn fx:id="typeColumn" prefWidth="121.0" text="Type" />
+                        <TableColumn fx:id="descriptionColumn" prefWidth="253.0" text="Description" />
+                        <TableColumn fx:id="startTimeColumn" prefWidth="131.0" text="Start Date and Time" />
+                        <TableColumn fx:id="endTimeColumn" prefWidth="128.0" text="End Date and Time" />
+                        <TableColumn fx:id="customerIdColumn" prefWidth="89.0" text="Customer ID" />
+                    </columns>
+                  </TableView>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
