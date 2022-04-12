@@ -17,13 +17,13 @@ Each time an Appointment is created, updated, or deleted to/from the database, a
 "mysql-connector-java-8.0.26" was used for the development of this application.
 
 ## IDE, JDK, and JavaFX used for Development
-IntelliJ IDEA 2021.2.2 Ultimate Edition
-Java JDK 14.0.1
-JavaFX-SDK-17
+    IntelliJ IDEA 2021.2.2 Ultimate Edition
+    Java JDK 14.0.1
+    JavaFX-SDK-17
 
 
 ## Misc. Notes
-Author: Henry Trieu
-Contact Information: htrieu3@wgu.edu
-Version: 1.0.0
-Date: 10/27/21
+    Author: Henry Trieu
+    Contact Information: htrieu3@wgu.edu
+    Version: 1.0.0
+    Date: 10/27/21
